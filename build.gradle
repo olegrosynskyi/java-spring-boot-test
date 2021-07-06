@@ -2,10 +2,12 @@ buildscript {
     ext {
         springBootVersion = '2.5.2'
         dependencyManagementPluginVersion = '1.0.11.RELEASE'
+        dockerComposePluginVersion = '0.14.3'
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
+        classpath "gradle.plugin.com.avast.gradle:gradle-docker-compose-plugin:${dockerComposePluginVersion}"
     }
 }
 
