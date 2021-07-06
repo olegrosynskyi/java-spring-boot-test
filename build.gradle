@@ -1,0 +1,33 @@
+buildscript {
+    ext {
+        springBootVersion = '2.5.2'
+        dependencyManagementPluginVersion = '1.0.11.RELEASE'
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
+    }
+}
+
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'io.spring.dependency-management'
+
+    def BUILD_NUMBER = project.hasProperty('buildNum') ? "$buildNum" : (System.env.BUILD_NUMBER != null) ? "${System.env.BUILD_NUMBER}" : 'undef'
+    group = 'com.skai.template'
+    version = '0.1.' + BUILD_NUMBER
+
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
