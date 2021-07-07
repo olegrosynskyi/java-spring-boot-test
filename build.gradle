@@ -1,3 +1,5 @@
+apply plugin: 'docker-compose'
+
 buildscript {
     ext {
         springBootVersion = '2.5.2'
@@ -9,6 +11,12 @@ buildscript {
         classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
         classpath "gradle.plugin.com.avast.gradle:gradle-docker-compose-plugin:${dockerComposePluginVersion}"
     }
+}
+
+dockerCompose {
+    captureContainersOutputToFiles =  project.file('build/logs/containers/')
+    captureContainersOutput = true
+    composeLogToFile =  project.file('build/logs/containers/compose.log')
 }
 
 allprojects {
