@@ -1,4 +1,6 @@
 apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
@@ -11,4 +13,10 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+bootDistTar {
+    archiveBaseName = "app"
+    archiveExtension = "tar"
+    archiveVersion = ""
 }
