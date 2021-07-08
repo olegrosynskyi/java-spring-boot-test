@@ -15,6 +15,10 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+application {
+    applicationName = 'app'
+}
+
 bootDistTar {
     archiveBaseName = "app"
     archiveExtension = "tar"

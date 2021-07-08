@@ -1,5 +1,6 @@
 apply plugin: 'docker-compose'
 apply plugin: "com.kenshoo.tasksplugin"
+apply plugin: "com.kenshoo.vaultkaplugin"
 
 buildscript {
     ext {
@@ -7,12 +8,14 @@ buildscript {
         dependencyManagementPluginVersion = '1.0.11.RELEASE'
         dockerComposePluginVersion = '0.14.3'
         gradleTasksPluginVersion = '0.1.+'
+        vaultkaPluginVersion = '0.1.+'
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath("io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}")
         classpath "gradle.plugin.com.avast.gradle:gradle-docker-compose-plugin:${dockerComposePluginVersion}"
         classpath "com.kenshoo.tasksplugin:gradle-tasks-plugin:${gradleTasksPluginVersion}"
+        classpath "com.kenshoo.vaultkaplugin:vaultka-gradle-plugin:${vaultkaPluginVersion}"
     }
 }
 
@@ -20,26 +23,6 @@ dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
     captureContainersOutput = true
     composeLogToFile =  project.file('build/logs/containers/compose.log')
-}
-
-task dockerBuild(type: Exec){
-    commandLine "docker", "build", "-t", "app", "."
-}
-
-task publish(type: Wrapper) {
-
-}
-
-task testAll(type: GradleBuild) {
-    tasks = ['composeDown', 'clean', 'assemble', 'dockerBuild', 'composeUp', 'check']
-}
-
-task copyAppLog(type: Wrapper) {
-
-}
-
-task cleanDocker(type: Exec) {
-    commandLine ("docker", "rm", "-f", "app", "app_db", "redis_db", "app_rabbit", "app_mock").setIgnoreExitValue(true)
 }
 
 subprojects {
@@ -64,3 +47,26 @@ subprojects {
         useJUnitPlatform()
     }
 }
+
+task dockerBuild(type: Exec){
+    commandLine "docker", "build", "-t", "app", "."
+}
+
+task publish(type: Wrapper) {
+
+}
+
+task testAll(type: GradleBuild) {
+    tasks = ['composeDown', 'clean', 'assemble', 'dockerBuild', 'composeUp', 'check']
+}
+
+task copyAppLog(type: Wrapper) {
+
+}
+
+task cleanDocker(type: Exec) {
+    commandLine ("docker", "rm", "-f", "app", "app_db", "redis_db", "app_rabbit", "app_mock").setIgnoreExitValue(true)
+}
+
+composeDown.dependsOn(populateEnvVarsWithSecrets)
+composeUp.dependsOn(populateEnvVarsWithSecrets)
