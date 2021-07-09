@@ -1,0 +1,26 @@
+body {
+    background-color: #f5f5f5;
+    font-family: roboto regular !important;
+}
+
+nav.navbar {
+    background-color: #111428;
+}
+
+nav.navbar .navbar-brand img {
+    height: 30px;
+}
+
+.welcome-message span {
+    text-transform: capitalize;
+}
+
+nav.navbar .navbar-text {
+    color: #1BBEFF;
+    text-transform: capitalize;
+    font-size: 24px;
+    display: block;
+    float: right;
+    margin-left: 5px;
+    margin-top: 3px;
+}

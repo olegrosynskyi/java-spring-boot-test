@@ -19,6 +19,8 @@ buildscript {
     }
 }
 
+apply from: "${rootDir}/dependencies.gradle"
+
 dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
     captureContainersOutput = true
