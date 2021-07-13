@@ -2,5 +2,10 @@ project.ext.set("libraries", "")
 
 project.libraries = [
         bootstrap_webjars: 'org.webjars:bootstrap:5.0.1',
-        swagger : 'io.springfox:springfox-boot-starter:3.0.0'
+        swagger          : 'io.springfox:springfox-boot-starter:3.0.0',
+        metricsReporter  : dependencies.create('com.kenshoo:spring-graphite-reporter3-1:5.1.385') {
+            exclude group: 'com.jayway.awaitility', module: 'awaitility'
+            exclude group: 'io.dropwizard.metrics', module: 'metrics-core'
+            exclude group: 'org.springframework', module: 'spring-context'
+        },
 ]
