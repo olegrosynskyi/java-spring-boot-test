@@ -16,12 +16,14 @@ import static com.codahale.metrics.MetricRegistry.name;
 @RequiredArgsConstructor
 public class TestController {
 
+    private static final String GET_REQUEST_METRIC_NAME = name(TestController.class, "get");
+
     private final MeterRegistry meterRegistry;
 
     @Counted
     @GetMapping
     public String get() {
-        return meterRegistry.timer(name(this.getClass(), "get")).record(() -> "You successfully sent a GET request");
+        return meterRegistry.timer(GET_REQUEST_METRIC_NAME).record(() -> "You successfully sent a GET request");
     }
 
     @Timed

@@ -8,4 +8,7 @@ project.libraries = [
             exclude group: 'io.dropwizard.metrics', module: 'metrics-core'
             exclude group: 'org.springframework', module: 'spring-context'
         },
+        kenshoo_auth  : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
+            exclude group: 'io.dropwizard', module: 'dropwizard-auth'
+        }
 ]
