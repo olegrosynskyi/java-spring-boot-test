@@ -16,6 +16,7 @@ dependencies {
     implementation libraries.swagger
     implementation libraries.kenshoo_auth
     implementation libraries.metricsReporter
+    implementation libraries.logback_encoder
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java'

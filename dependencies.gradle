@@ -10,5 +10,6 @@ project.libraries = [
         },
         kenshoo_auth  : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
-        }
+        },
+        logback_encoder                  : 'net.logstash.logback:logstash-logback-encoder:6.6'
 ]

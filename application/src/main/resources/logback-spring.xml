@@ -1,0 +1,27 @@
+<configuration>
+    <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSZ</timestampPattern>
+        </encoder>
+    </appender>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) %clr(%-40.40logger{39}){cyan} %clr(:){faint} [%marker] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="development">
+        <root level="info">
+            <appender-ref ref="consoleAppender"/>
+        </root>
+    </springProfile>
+    <springProfile name="production,staging">
+        <root level="info">
+            <appender-ref ref="jsonConsoleAppender"/>
+        </root>
+    </springProfile>
+</configuration>
