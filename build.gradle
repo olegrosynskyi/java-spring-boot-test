@@ -46,10 +46,45 @@ subprojects {
         }
     }
 
+    jacoco {
+        toolVersion = "0.8.7"
+        reportsDirectory = file("$buildDir/customJacocoReportDir")
+    }
+
     test {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        finalizedBy jacocoTestCoverageVerification
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = 0.5
+                }
+            }
+
+            rule {
+                enabled = false
+                element = 'CLASS'
+                includes = ['org.gradle.*']
+
+                limit {
+                    counter = 'LINE'
+                    value = 'TOTALCOUNT'
+                    maximum = 0.3
+                }
+            }
+        }
     }
 }
+
+
 
 task dockerBuild(type: Exec){
     commandLine "docker", "build", "-t", "app", "."
