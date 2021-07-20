@@ -1,4 +1,5 @@
 rootProject.name = 'template'
 
 include 'application'
+include 'api-tests'
 

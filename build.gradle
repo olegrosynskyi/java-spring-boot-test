@@ -30,6 +30,7 @@ dockerCompose {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
+    apply plugin: "jacoco"
     apply plugin: 'io.spring.dependency-management'
 
     def BUILD_NUMBER = project.hasProperty('buildNum') ? "$buildNum" : (System.env.BUILD_NUMBER != null) ? "${System.env.BUILD_NUMBER}" : 'undef'
