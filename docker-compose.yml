@@ -5,6 +5,20 @@ services:
     image: 'app'
     ports:
       - "8080:8080"
+    environment:
+      - USE_RDS=true
+      - RDS_USERNAME=root
+      - RDS_PASSWORD=root
+      - RDS_HOSTNAME=app_db
+      - RDS_PORT=3306
+      - RDS_DB_NAME=app
+      - APP_NAME=newapp
+      - REDIS_HOST=redis_db
+      - ENVIRONMENT_TYPE=development
+      - RABBITMQ_ADDRESS=rabbitmq
+      - RABBITMQ_USERNAME=root
+      - RABBITMQ_USER_PASSWORD=root
+      - RABBITMQ_PORT=5672
     env_file:
       - ./.env
     depends_on:
