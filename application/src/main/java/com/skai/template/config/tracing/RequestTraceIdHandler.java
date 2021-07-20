@@ -1,5 +1,6 @@
 package com.skai.template.config.tracing;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
@@ -45,6 +46,7 @@ public class RequestTraceIdHandler implements AsyncHandlerInterceptor {
     private String getTraceID(HttpServletRequest request) {
         return Optional
                 .ofNullable(request.getHeader(TRACE_ID_HEADER))
+                .filter(StringUtils::isNoneEmpty)
                 .orElse(UUID.randomUUID().toString());
     }
 
