@@ -1,16 +1,21 @@
 project.ext.set("libraries", "")
 
 project.libraries = [
-        bootstrap_webjars: 'org.webjars:bootstrap:5.0.1',
-        swagger          : 'io.springfox:springfox-boot-starter:3.0.0',
-        metricsReporter  : dependencies.create('com.kenshoo:spring-graphite-reporter3-1:5.1.385') {
+        bootstrap_webjars      : 'org.webjars:bootstrap:5.0.1',
+        swagger                : 'io.springfox:springfox-boot-starter:3.0.0',
+        metricsReporter        : dependencies.create('com.kenshoo:spring-graphite-reporter3-1:5.1.385') {
             exclude group: 'com.jayway.awaitility', module: 'awaitility'
             exclude group: 'io.dropwizard.metrics', module: 'metrics-core'
             exclude group: 'org.springframework', module: 'spring-context'
+            exclude group: 'com.google.guava', module: 'guava'
         },
-        kenshoo_auth  : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
+        kenshoo_auth           : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
+            exclude group: 'org.json', module: 'json'
         },
-        logback_encoder                  : 'net.logstash.logback:logstash-logback-encoder:6.6',
-        jaxb                     : 'javax.xml.bind:jaxb-api:2.3.1'
+        logback_encoder        : 'net.logstash.logback:logstash-logback-encoder:6.6',
+        jaxb                   : 'javax.xml.bind:jaxb-api:2.3.1',
+        cucumber_java          : 'io.cucumber:cucumber-java:6.10.4',
+        cucumber_junit_platform: 'io.cucumber:cucumber-junit-platform-engine:6.10.4',
+        cucumber_spring        : 'io.cucumber:cucumber-spring:6.10.4'
 ]

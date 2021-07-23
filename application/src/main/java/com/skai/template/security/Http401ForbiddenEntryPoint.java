@@ -1,6 +1,7 @@
 package com.skai.template.security;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -10,19 +11,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class Http401ForbiddenEntryPoint implements AuthenticationEntryPoint {
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(new JSONObject()
-                .put("timestamp", LocalDateTime.now())
-                .put("message", "Access Denied. Credentials are required to access this resource.")
-                .put("path", request.getServletPath())
-                .put("status", response.getStatus())
-                .toString());
+        response.getWriter().write(objectMapper.writeValueAsString(Map.of(
+                "timestamp", LocalDateTime.now(),
+                "message", "Access Denied. Credentials are required to access this resource.",
+                "path", request.getServletPath(),
+                "status", response.getStatus()
+        )));
     }
 }

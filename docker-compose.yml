@@ -32,3 +32,9 @@ services:
       - ./docker/app.cnf:/etc/mysql/conf.d/app.cnf
     environment:
       - MYSQL_ROOT_PASSWORD=root
+  wiremock:
+    container_name: app_mock
+    ports:
+      - "8089:8089"
+    image: "rodolpheche/wiremock"
+    command: --port 8089
