@@ -3,34 +3,34 @@ apply plugin: 'application'
 
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.liquibase:liquibase-core'
-    implementation 'org.springframework.boot:spring-boot-starter-jooq'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-registry-graphite'
+    implementation libraries.spring_boot_starter_jdbc
+    implementation libraries.spring_boot_starter_web
+    implementation libraries.liquibase
+    implementation libraries.spring_boot_starter_jooq
+    implementation libraries.spring_boot_starter_thymeleaf
+    implementation libraries.spring_boot_starter_security
+    implementation libraries.commons_lang3
+    implementation libraries.spring_boot_starter_actuator
+    implementation libraries.micrometer_registry_graphite
     implementation libraries.bootstrap_webjars
     implementation libraries.swagger
     implementation libraries.kenshoo_auth
     implementation libraries.metricsReporter
     implementation libraries.logback_encoder
-    implementation 'com.google.guava:guava:30.1.1-jre'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'mysql:mysql-connector-java'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+    implementation libraries.guava
+    compileOnly libraries.lombok
+    developmentOnly libraries.spring_boot_devtools
+    runtimeOnly libraries.mysql_connector_java
+    annotationProcessor libraries.configuration_processor
+    annotationProcessor libraries.lombok
+    testImplementation libraries.spring_boot_starter_test
+    testImplementation libraries.spring_boot_security_test
     testImplementation libraries.cucumber_java
     testImplementation libraries.cucumber_junit_platform
     testImplementation libraries.cucumber_spring
-    testImplementation 'com.github.tomakehurst:wiremock:2.27.2'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
+    testImplementation libraries.wiremock
+    testCompileOnly libraries.lombok
+    testAnnotationProcessor libraries.lombok
 }
 
 application {
