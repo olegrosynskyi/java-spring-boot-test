@@ -1,11 +1,13 @@
 package com.skai.template.controller;
 
+import com.kenshoo.auth.KenshooPrincipal;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.marker.Markers;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,8 +36,10 @@ public class TestController {
 
     @Timed
     @PostMapping
-    public String post() {
-        return "You successfully sent a POST request";
+    public String post(Authentication authentication) {
+        KenshooPrincipal principal = (KenshooPrincipal) authentication.getPrincipal();
+        return "You successfully sent a POST request to a secured endpoint. " +
+                "KenshooPrincipal details : email : " + principal.getEmail();
     }
 
 }

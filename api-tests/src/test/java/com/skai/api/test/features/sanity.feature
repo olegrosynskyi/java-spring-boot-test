@@ -49,7 +49,8 @@ Feature: Sanity Test
   Scenario: secured route returns 200 OK response when Authorization header has a verified auth jwt token
     Given url APPLICATION_URL + "/api/v1/test"
     And header Authorization = "Bearer " + jwtToken
-    When method get
+    When request {}
+    And method post
     Then status 200
 
   Scenario: app is up and health check return appropriate status
