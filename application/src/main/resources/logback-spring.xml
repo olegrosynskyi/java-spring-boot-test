@@ -14,6 +14,8 @@
         </encoder>
     </appender>
 
+    <logger name="com.kenshoo.auth" level="ERROR" />
+
     <springProfile name="development">
         <root level="info">
             <appender-ref ref="consoleAppender"/>

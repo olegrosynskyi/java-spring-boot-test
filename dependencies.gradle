@@ -12,6 +12,7 @@ project.libraries = [
         spring_boot_starter_thymeleaf: 'org.springframework.boot:spring-boot-starter-thymeleaf',
         spring_boot_starter_security : 'org.springframework.boot:spring-boot-starter-security',
         spring_boot_starter_actuator : 'org.springframework.boot:spring-boot-starter-actuator',
+        spring_boot_starter_redis    : 'org.springframework.boot:spring-boot-starter-data-redis',
         spring_boot_devtools         : 'org.springframework.boot:spring-boot-devtools',
         spring_boot_starter_test     : 'org.springframework.boot:spring-boot-starter-test',
         spring_boot_security_test    : 'org.springframework.security:spring-security-test',
@@ -24,6 +25,7 @@ project.libraries = [
             exclude group: 'org.springframework', module: 'spring-context'
             exclude group: 'com.google.guava', module: 'guava'
         },
+        commons_pool2 : 'org.apache.commons:commons-pool2',
         micrometer_registry_graphite : 'io.micrometer:micrometer-registry-graphite',
         cucumber_java                : 'io.cucumber:cucumber-java:6.10.4',
         cucumber_junit_platform      : 'io.cucumber:cucumber-junit-platform-engine:6.10.4',

@@ -9,6 +9,8 @@ dependencies {
     implementation libraries.spring_boot_starter_jooq
     implementation libraries.spring_boot_starter_thymeleaf
     implementation libraries.spring_boot_starter_security
+    implementation libraries.spring_boot_starter_redis
+    implementation libraries.commons_pool2
     implementation libraries.commons_lang3
     implementation libraries.spring_boot_starter_actuator
     implementation libraries.micrometer_registry_graphite
