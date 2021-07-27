@@ -20,6 +20,7 @@ dependencies {
     implementation libraries.metricsReporter
     implementation libraries.logback_encoder
     implementation libraries.guava
+    implementation libraries.kjobster
     compileOnly libraries.lombok
     developmentOnly libraries.spring_boot_devtools
     runtimeOnly libraries.mysql_connector_java

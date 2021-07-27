@@ -25,8 +25,9 @@ project.libraries = [
             exclude group: 'org.springframework', module: 'spring-context'
             exclude group: 'com.google.guava', module: 'guava'
         },
-        commons_pool2 : 'org.apache.commons:commons-pool2',
+        commons_pool2                : 'org.apache.commons:commons-pool2',
         micrometer_registry_graphite : 'io.micrometer:micrometer-registry-graphite',
+        kjobster                     : 'com.kenshoo:kjobster:1.1.107',
         cucumber_java                : 'io.cucumber:cucumber-java:6.10.4',
         cucumber_junit_platform      : 'io.cucumber:cucumber-junit-platform-engine:6.10.4',
         cucumber_spring              : 'io.cucumber:cucumber-spring:6.10.4',

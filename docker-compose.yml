@@ -43,3 +43,13 @@ services:
     ports:
       - "6379:6379"
     image: "redis:4.0.9-alpine"
+  rabbitmq:
+    container_name: app_rabbit
+    image: "rabbitmq:3.7.5-management"
+    ports:
+      - "5672:5672"
+      - "8088:15672"
+    environment:
+      RABBITMQ_DEFAULT_PASS: "root"
+      RABBITMQ_DEFAULT_USER: "root"
+      RABBITMQ_DEFAULT_VHOST: "/"

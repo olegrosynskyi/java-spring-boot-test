@@ -13,7 +13,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(classes = Application.class)
-public class RedisOperationsIntegrationTest {
+class RedisOperationsIntegrationTest {
 
     private static final String MEMBER1 = "member1";
     private static final String MEMBER2 = "member2";
