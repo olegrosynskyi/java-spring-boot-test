@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Hello, Skai!</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -20,7 +20,7 @@
     <div class="jumbotron shadow bg-white rounded">
         <div class="d-flex p-5">
             <div class="flex-shrink-0">
-                <img th:src="@{/images/logo.svg}" class="align-self-start me-3 mt-4" width="200px">
+                <img alt="logo" th:src="@{/images/logo.svg}" class="align-self-start me-3 mt-4" width="200px">
             </div>
             <div class="flex-grow-1 ms-3 welcome-message">
                 <h1 class="display-6">Welcome to <span th:text="${@environment.getProperty('spring.application.name')}"></span> Application...</h1>

@@ -1,6 +1,8 @@
 package com.skai.template.rabbit;
 
 import com.kenshoo.kjobster.api.JobsterApi;
+import com.kenshoo.kjobster.api.MessageAction;
+import com.kenshoo.kjobster.api.MessageResponse;
 import com.kenshoo.kjobster.rabbit.producer.JobMessage;
 import com.kenshoo.kjobster.rabbit.producer.RabbitProducer;
 import com.skai.template.Application;
@@ -11,17 +13,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.Duration;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
+@DirtiesContext
+@ActiveProfiles("test")
 @SpringBootTest(classes = Application.class)
 class KjobsterConsumerIntegrationTest {
 
@@ -38,14 +41,10 @@ class KjobsterConsumerIntegrationTest {
 
     private RabbitProducer producer;
 
-    @DynamicPropertySource
-    static void dynamicProperties(DynamicPropertyRegistry registry) {
-        // change queue name to prevent conflict with running app in docker during test execution
-        registry.add("rabbit.queueName", () -> "example-test-queue");
-    }
-
     @BeforeEach
     public void before() throws Exception {
+        when(exampleMessageHandler.handleMessage(eq(TEST_MESSAGE), any(Optional.class)))
+                .thenReturn(MessageResponse.builder().withMessageAction(MessageAction.ACKNOWLEDGE).build());
         this.producer = jobsterApi.getProducer(brokerDetailsFactory.getBrokerDetails(rabbitConfig),
                 Optional.of(Duration.ofMinutes(1).toMillis()));
     }

@@ -10,11 +10,15 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DirtiesContext
+@ActiveProfiles("test")
 @Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest(classes = Application.class)
 class UserDaoIntegrationTest {
@@ -33,13 +37,13 @@ class UserDaoIntegrationTest {
     }
 
     @Test
-    public void verifyUserCreation() {
-        assertEquals(userDao.create(USER_1), 1);
-        assertEquals(userDao.create(USER_2), 1);
+    void verifyUserCreation() {
+        assertEquals(1, userDao.create(USER_1));
+        assertEquals(1, userDao.create(USER_2));
     }
 
     @Test
-    public void verifyUserFetchingByName() {
+    void verifyUserFetchingByName() {
         userDao.create(USER_1);
         userDao.create(USER_2);
 
@@ -50,7 +54,7 @@ class UserDaoIntegrationTest {
     }
 
     @Test
-    public void verifyUserFetchingByNameWhenNotExists() {
+    void verifyUserFetchingByNameWhenNotExists() {
         userDao.create(USER_1);
         Optional<User> result = userDao.findByName("user_3");
         assertTrue(result.isEmpty(), "User found in DB when it does not suppose to exist");

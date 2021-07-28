@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    public final static String PREFIX = "Bearer ";
+    public static final String PREFIX = "Bearer ";
     private final AuthenticationManager authenticationManager;
     private final AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
