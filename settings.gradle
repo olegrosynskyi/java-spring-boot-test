@@ -1,4 +1,4 @@
-rootProject.name = 'template'
+rootProject.name = "{{APP_NAME}}"
 
 include 'application'
 include 'api-tests'
