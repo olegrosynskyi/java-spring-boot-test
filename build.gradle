@@ -44,6 +44,9 @@ subprojects {
         compileOnly {
             extendsFrom annotationProcessor
         }
+        compileClasspath {
+            resolutionStrategy.activateDependencyLocking()
+        }
     }
 
     jacoco {
