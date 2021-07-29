@@ -25,6 +25,9 @@ project.libraries = [
             exclude group: 'org.springframework', module: 'spring-context'
             exclude group: 'com.google.guava', module: 'guava'
         },
+        awsProvider              : dependencies.create('com.kenshoo:aws-credentials-provider:5.1.385') {
+            exclude group: 'org.apache.commons', module: 'commons-lang'
+        },
         commons_pool2                : 'org.apache.commons:commons-pool2',
         micrometer_registry_graphite : 'io.micrometer:micrometer-registry-graphite',
         kjobster                     : 'com.kenshoo:kjobster:1.1.107',

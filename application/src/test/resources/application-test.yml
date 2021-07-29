@@ -1,0 +1,7 @@
+rabbit:
+  exchange: 'test-exchange'
+  queueName: 'test-queue'
+  bindingKey: 'test-key'
+spring:
+  main:
+    lazy-initialization: true

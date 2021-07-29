@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: '{{APP_NAME}}'
+  environment:
+    type: '${ENVIRONMENT_TYPE:development}'
+  profiles:
+    active: '${spring.environment.type}'
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  datasource:
+    url: jdbc:mysql://${RDS_HOSTNAME:localhost}:${RDS_PORT:33060}/${RDS_DB_NAME:app}?useSSL=false&autoReconnect=true&createDatabaseIfNotExist=true&rewriteBatchedStatements=true&useUnicode=yes&characterEncoding=UTF-8
+    username: '${RDS_USERNAME:root}'
+    password: '${RDS_PASSWORD:root}'
+  liquibase:
+    change-log: 'classpath:/db/changelog/db.changelog-master.xml'
+  security:
+    jwt:
+      secret: '${MICROCOSM_HMAC_SECRET:sKn25yqQLZmPTEMP}'
+  redis:
+    host: '${REDIS_HOST:localhost}'
+    port: '${REDIS_PORT:6379}'
+    client-type: lettuce
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        time-between-eviction-runs: 5m
+server:
+  shutdown: graceful
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'env,health,heapdump,metrics,threaddump'
+  endpoint:
+    health:
+      show-details: always
+      cache:
+        time-to-live: 30s
+  metrics:
+    export:
+      graphite:
+        host: bc0087a2.carbon.ks.hostedgraphite.com
+        port: 2003
+        prefix: '${HOSTED_GRAPHITE_PREFIX:NONE}'
+        enabled: '${HOSTED_GRAPHITE_ENABLED:false}'
+        step: 30s
+        tags-as-prefix: 'prefix,appName,environmentType'
+rabbit:
+  host: '${RABBITMQ_ADDRESS:localhost}'
+  port: '${RABBITMQ_PORT:5672}'
+  username: '${RABBITMQ_USERNAME:root}'
+  password: '${RABBITMQ_USER_PASSWORD:root}'
+  exchange: '"example-exchange"'
+  queueName: '"example-queue"'
+  bindingKey: '"example-key"'
+  numOfListeners: 1
+aws:
+  accessKey: '${AWS_ACCESS_KEY_ID:}'
+  secretKey: '${AWS_SECRET_ACCESS_KEY:}'
+  useRoleBasedAuth: '${USE_ROLE_BASED_AUTH:false}'
+  webTokenFile: '${AWS_WEB_IDENTITY_TOKEN_FILE:}'
+  roleArnName: '${AWS_ROLE_ARN:}'
+  accessKeyAssumeRole: '${AWS_ACCESS_KEY_ID_ASSUME_ROLE:}'
+  secretKeyAssumeRole: '${AWS_SECRET_ACCESS_KEY_ASSUME_ROLE:}'
+  roleAppName: '${spring.application.name}'

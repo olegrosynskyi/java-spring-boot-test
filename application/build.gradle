@@ -21,6 +21,7 @@ dependencies {
     implementation libraries.logback_encoder
     implementation libraries.guava
     implementation libraries.kjobster
+    implementation libraries.awsProvider
     compileOnly libraries.lombok
     developmentOnly libraries.spring_boot_devtools
     runtimeOnly libraries.mysql_connector_java
