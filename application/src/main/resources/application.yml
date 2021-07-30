@@ -32,7 +32,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: 'env,health,heapdump,metrics,threaddump'
+        include: 'loggers,health,heapdump,metrics,threaddump'
   endpoint:
     health:
       show-details: always
@@ -43,7 +43,7 @@ management:
       graphite:
         host: bc0087a2.carbon.ks.hostedgraphite.com
         port: 2003
-        prefix: '${HOSTED_GRAPHITE_PREFIX:NONE}'
+        secret: '${HOSTED_GRAPHITE_PREFIX:NONE}'
         enabled: '${HOSTED_GRAPHITE_ENABLED:false}'
         step: 30s
         tags-as-prefix: 'prefix,appName,environmentType'

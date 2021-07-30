@@ -37,19 +37,6 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public Docket actuatorDocket() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("Management API (Actuator)")
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.ant("/actuator/**"))
-                .build()
-                .apiInfo(apiInfo())
-                .securityContexts(List.of(securityContext()))
-                .securitySchemes(List.of(apiKey()));
-    }
-
-    @Bean
     public UiConfiguration uiConfig() {
         return UiConfigurationBuilder.builder()
                 .docExpansion(DocExpansion.LIST)

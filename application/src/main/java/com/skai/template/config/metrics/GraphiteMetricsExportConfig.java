@@ -33,11 +33,11 @@ public class GraphiteMetricsExportConfig {
     }
 
     @Bean
-    public MeterRegistryCustomizer<MeterRegistry> meterRegistryCustomizer(@Value("${management.metrics.export.graphite.prefix}") String prefix,
+    public MeterRegistryCustomizer<MeterRegistry> meterRegistryCustomizer(@Value("${management.metrics.export.graphite.secret}") String secret,
                                                              @Value("${spring.application.name}") String appName,
                                                              @Value("${spring.environment.type}") String environmentType) {
         return r -> r.config().commonTags(List.of(
-                Tag.of("prefix", prefix),
+                Tag.of("prefix", secret),
                 Tag.of("appName", appName),
                 Tag.of("environmentType", environmentType)
         ));

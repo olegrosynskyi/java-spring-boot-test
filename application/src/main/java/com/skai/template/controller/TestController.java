@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public class TestController {
 
     @Timed
     @PostMapping
-    public String post(Authentication authentication) {
+    public String post(@ApiIgnore Authentication authentication) {
         KenshooPrincipal principal = (KenshooPrincipal) authentication.getPrincipal();
         return "You successfully sent a POST request to a secured endpoint. " +
                 "KenshooPrincipal details : email : " + principal.getEmail();
