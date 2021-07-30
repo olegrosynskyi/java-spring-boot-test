@@ -55,18 +55,18 @@ team to ask and discuss on our #microservices-discuss channel on slack)
 
 This template supports the usage of AWS assume-role functionality. It means that your application could use temporary credentials for a time-limited session or use static user credentials.
 
-The way to use it is to populate your app.yml file correctly. Here's an example for such configuration:
+The way to use it is to populate your application.yml file correctly. Here's an example for such configuration:
 
 ```
-awsConfigurations:
-  accessKey: ${AWS_ACCESS_KEY_ID:-}
-  secretKey: ${AWS_SECRET_ACCESS_KEY:-}
-  useRoleBasedAuth: ${USE_ROLE_BASED_AUTH:-false}
-  webTokenFile: ${AWS_WEB_IDENTITY_TOKEN_FILE:-}
-  roleArnName: ${AWS_ROLE_ARN:-}
-  accessKeyAssumeRole: ${AWS_ACCESS_KEY_ID_ASSUME_ROLE:-}
-  secretKeyAssumeRole: ${AWS_SECRET_ACCESS_KEY_ASSUME_ROLE:-}
-  roleAppName: ${APP_NAME:-}
+aws:
+  accessKey: '${AWS_ACCESS_KEY_ID:}'
+  secretKey: '${AWS_SECRET_ACCESS_KEY:}'
+  useRoleBasedAuth: '${USE_ROLE_BASED_AUTH:false}'
+  webTokenFile: '${AWS_WEB_IDENTITY_TOKEN_FILE:}'
+  roleArnName: '${AWS_ROLE_ARN:}'
+  accessKeyAssumeRole: '${AWS_ACCESS_KEY_ID_ASSUME_ROLE:}'
+  secretKeyAssumeRole: '${AWS_SECRET_ACCESS_KEY_ASSUME_ROLE:}'
+  roleAppName: '${spring.application.name}'
 ```
 There are three conditions to get credentials:
 
@@ -94,10 +94,10 @@ credentials.
 Example:
 After you added the relevant environment variable based on your strategy
 ```
-    @Inject
-    private AwsCredentialsProviderConfiguration awsConfiguration;
+    @Autowired
+    private GenerateAwsCredentialsProvider credentialsProvider;
     
-    AWSCredentialsProvider awsCredentials = new GenerateAwsCredentialsProvider(awsConfiguration).getCredentials();
+    AWSCredentialsProvider awsCredentials = credentialsProvider.getCredentials();
     //After we set the credentials we can configure the client builder with the AWSCredentialsProvider and build the client.
     final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(awsCredentials).withRegion("us-east-1").build();
 ```        
