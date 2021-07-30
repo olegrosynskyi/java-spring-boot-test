@@ -23,6 +23,8 @@ services:
       - ./.env
     depends_on:
       - "mysql"
+      - "redis"
+      - "rabbitmq"
   mysql:
     container_name: app_db
     ports:
