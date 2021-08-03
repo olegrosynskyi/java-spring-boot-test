@@ -38,6 +38,21 @@ team to ask and discuss on our #microservices-discuss channel on slack)
    in most cases the setup will include your app and a mysql docker like this sample but your case might be different,  
    You can read more about compose [here](https://docs.docker.com/compose/gettingstarted/)
 
+### Gradle Dependency Lock
+
+To achieve reproducible builds, it is necessary to lock versions of dependencies and transitive dependencies such that 
+a build with the same inputs will always resolve the same module versions. This is called dependency locking.
+
+This template contains `gradle.lockfile` in each module, it contains list of all dependencies which are used in application. 
+If you need to do any changes to dependencies you also need to update lock file. 
+
+There are few ways to do that:
+
+- Run command `./gradlew assemble --write-locks`
+- Run existing task `./gradlew updateLocks`
+
+It will add all necessary changes to `gradle.lockfile`, then you can review them and commit together with other changes.
+
 ### Project files explained
 
 - `Dockerfile`: Basic image used for your application (in both production and tests). Usually the file merely points to a pre-built image hosted on `kenshoo.jfrog.io`. You can build the image locally using `./gradlew assemble`
