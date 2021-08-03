@@ -17,7 +17,7 @@ spring:
     jwt:
       secret: '${MICROCOSM_HMAC_SECRET:sKn25yqQLZmPTEMP}'
   redis:
-    host: '${REDIS_HOST:localhost}'
+    host: '${REDIS_ENDPOINT:localhost}'
     port: '${REDIS_PORT:6379}'
     client-type: lettuce
     lettuce:

@@ -13,7 +13,7 @@ services:
       - RDS_PORT=3306
       - RDS_DB_NAME=app
       - APP_NAME=newapp
-      - REDIS_HOST=redis_db
+      - REDIS_ENDPOINT=redis_db
       - ENVIRONMENT_TYPE=development
       - RABBITMQ_ADDRESS=rabbitmq
       - RABBITMQ_USERNAME=root
