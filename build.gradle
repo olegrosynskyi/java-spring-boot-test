@@ -20,6 +20,7 @@ buildscript {
 }
 
 apply from: "${rootDir}/dependencies.gradle"
+apply from: "${rootDir}/jacoco.settings.gradle"
 
 dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
@@ -30,7 +31,6 @@ dockerCompose {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
-    apply plugin: "jacoco"
     apply plugin: 'io.spring.dependency-management'
 
     def BUILD_NUMBER = project.hasProperty('buildNum') ? "$buildNum" : (System.env.BUILD_NUMBER != null) ? "${System.env.BUILD_NUMBER}" : 'undef'
@@ -48,52 +48,12 @@ subprojects {
             resolutionStrategy.activateDependencyLocking()
         }
     }
-
     task updateLocks(type: GradleBuild) {
         startParameter.setWriteDependencyLocks(true)
         tasks = ['classes']
     }
     tasks.assemble.dependsOn(updateLocks)
-
-    jacoco {
-        toolVersion = "0.8.7"
-        reportsDirectory = file("$buildDir/customJacocoReportDir")
-    }
-
-    test {
-        useJUnitPlatform()
-        finalizedBy jacocoTestReport
-    }
-
-    jacocoTestReport {
-        dependsOn test
-        finalizedBy jacocoTestCoverageVerification
-    }
-
-    jacocoTestCoverageVerification {
-        violationRules {
-            rule {
-                limit {
-                    minimum = 0.5
-                }
-            }
-
-            rule {
-                enabled = false
-                element = 'CLASS'
-                includes = ['org.gradle.*']
-
-                limit {
-                    counter = 'LINE'
-                    value = 'TOTALCOUNT'
-                    maximum = 0.3
-                }
-            }
-        }
-    }
 }
-
-
 
 task dockerBuild(type: Exec){
     commandLine "docker", "build", "-t", "app", "."
