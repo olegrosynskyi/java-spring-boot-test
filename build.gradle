@@ -49,6 +49,12 @@ subprojects {
         }
     }
 
+    task updateLocks(type: GradleBuild) {
+        startParameter.setWriteDependencyLocks(true)
+        tasks = ['classes']
+    }
+    tasks.assemble.dependsOn(updateLocks)
+
     jacoco {
         toolVersion = "0.8.7"
         reportsDirectory = file("$buildDir/customJacocoReportDir")
@@ -109,10 +115,7 @@ task cleanDocker(type: Exec) {
     commandLine ("docker", "rm", "-f", "app", "app_db", "redis_db", "app_rabbit", "app_mock").setIgnoreExitValue(true)
 }
 
-task updateLocks(type: GradleBuild) {
-    startParameter.setWriteDependencyLocks(true)
-    tasks = ['assemble']
-}
+
 
 composeDown.dependsOn(populateEnvVarsWithSecrets)
 composeUp.dependsOn(populateEnvVarsWithSecrets)
