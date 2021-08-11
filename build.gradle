@@ -48,11 +48,11 @@ subprojects {
             resolutionStrategy.activateDependencyLocking()
         }
     }
-    task updateLocks(type: GradleBuild) {
-        startParameter.setWriteDependencyLocks(true)
-        tasks = ['classes']
-    }
-    tasks.assemble.dependsOn(updateLocks)
+}
+
+task updateLocks(type: GradleBuild) {
+    startParameter.setWriteDependencyLocks(true)
+    tasks = ['assemble']
 }
 
 task dockerBuild(type: Exec){
