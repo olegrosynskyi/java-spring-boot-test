@@ -22,6 +22,7 @@ dependencies {
     implementation libraries.guava
     implementation libraries.kjobster
     implementation libraries.awsProvider
+    implementation libraries.jaxb
     compileOnly libraries.lombok
     developmentOnly libraries.spring_boot_devtools
     runtimeOnly libraries.mysql_connector_java
