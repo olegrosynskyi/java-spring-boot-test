@@ -5,6 +5,9 @@ project.ext.set("libraries", "")
  * Once you will upgrade spring boot version all those dependencies will be updated accordingly
  */
 
+ext.cucumber_version = "6.11.0"
+ext.common_platform_version = "5.1.431"
+
 project.libraries = [
         spring_boot_starter_jdbc     : 'org.springframework.boot:spring-boot-starter-jdbc',
         spring_boot_starter_web      : 'org.springframework.boot:spring-boot-starter-web',
@@ -19,24 +22,24 @@ project.libraries = [
         configuration_processor      : 'org.springframework.boot:spring-boot-configuration-processor',
         liquibase                    : 'org.liquibase:liquibase-core',
         mysql_connector_java         : 'mysql:mysql-connector-java',
-        metricsReporter              : dependencies.create('com.kenshoo:spring-graphite-reporter3-1:5.1.385') {
+        metricsReporter              : dependencies.create("com.kenshoo:spring-graphite-reporter3-1:${common_platform_version}") {
             exclude group: 'com.jayway.awaitility', module: 'awaitility'
             exclude group: 'io.dropwizard.metrics', module: 'metrics-core'
             exclude group: 'org.springframework', module: 'spring-context'
             exclude group: 'com.google.guava', module: 'guava'
         },
-        awsProvider                  : dependencies.create('com.kenshoo:aws-credentials-provider:5.1.385') {
+        awsProvider                  : dependencies.create("com.kenshoo:aws-credentials-provider:${common_platform_version}") {
             exclude group: 'org.apache.commons', module: 'commons-lang'
         },
         commons_pool2                : 'org.apache.commons:commons-pool2',
         micrometer_registry_graphite : 'io.micrometer:micrometer-registry-graphite',
         kjobster                     : 'com.kenshoo:kjobster:1.1.107',
-        cucumber_java                : 'io.cucumber:cucumber-java:6.10.4',
-        cucumber_junit_platform      : 'io.cucumber:cucumber-junit-platform-engine:6.10.4',
-        cucumber_spring              : 'io.cucumber:cucumber-spring:6.10.4',
+        cucumber_java                : "io.cucumber:cucumber-java:${cucumber_version}",
+        cucumber_junit_platform      : "io.cucumber:cucumber-junit-platform-engine:${cucumber_version}",
+        cucumber_spring              : "io.cucumber:cucumber-spring:${cucumber_version}",
         wiremock                     : 'com.github.tomakehurst:wiremock:2.27.2',
         karate_apache                : 'com.intuit.karate:karate-apache:0.9.6',
-        karate_junit5                : 'com.intuit.karate:karate-junit5:1.0.1',
+        karate_junit5                : 'com.intuit.karate:karate-junit5:1.1.0',
         cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.5.4',
         bootstrap_webjars            : 'org.webjars:bootstrap:5.0.1',
         swagger                      : 'io.springfox:springfox-boot-starter:3.0.0',
