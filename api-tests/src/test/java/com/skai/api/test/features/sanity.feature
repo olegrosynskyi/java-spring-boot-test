@@ -1,4 +1,4 @@
-@ApiTest @SmokeTest
+@ApiTest
 Feature: Sanity Test
 
   Background:
@@ -10,12 +10,14 @@ Feature: Sanity Test
     When method get
     Then status 200
 
+  @SmokeTest
   Scenario: app default page returns 200 OK response with X-kenshoo-trace-id header
     Given url APPLICATION_URL
     When method get
     Then status 200
     And match responseHeaders['X-kenshoo-trace-id'][0] == '#notnull'
 
+  @SmokeTest
   Scenario: app default page returns 200 OK populates response with new X-kenshoo-trace-id header when header is empty string
     Given url APPLICATION_URL
     And header X-kenshoo-trace-id = ''
@@ -24,6 +26,7 @@ Feature: Sanity Test
     And match responseHeaders['X-kenshoo-trace-id'][0] == '#notnull'
     And match responseHeaders['X-kenshoo-trace-id'][0] != ''
 
+  @SmokeTest
   Scenario: app default page returns 200 OK response with X-kenshoo-trace-id header same as the one that came with the request
     Given url APPLICATION_URL
     And header X-kenshoo-trace-id = '12345'
@@ -53,9 +56,9 @@ Feature: Sanity Test
     And method post
     Then status 200
 
+  @SmokeTest
   Scenario: app is up and health check return appropriate status
     Given url APPLICATION_URL + "/actuator/health"
-    And header Authorization = "Bearer " + jwtToken
     When method get
     Then status 200
     And match response.status == 'UP'
