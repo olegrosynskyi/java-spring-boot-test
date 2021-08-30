@@ -40,7 +40,7 @@ project.libraries = [
         wiremock                     : 'com.github.tomakehurst:wiremock:2.27.2',
         karate_apache                : 'com.intuit.karate:karate-apache:0.9.6',
         karate_junit5                : 'com.intuit.karate:karate-junit5:1.1.0',
-        cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.5.4',
+        cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.6.0',
         bootstrap_webjars            : 'org.webjars:bootstrap:5.0.1',
         swagger                      : 'io.springfox:springfox-boot-starter:3.0.0',
         kenshoo_auth                 : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
