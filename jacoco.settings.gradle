@@ -14,13 +14,21 @@ subprojects {
     jacocoTestReport {
         dependsOn test
         finalizedBy jacocoTestCoverageVerification
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        'com/skai/**/*Config.class',
+                        'com/skai/**/*Configuration.class',
+                ])
+            }))
+        }
     }
 
     jacocoTestCoverageVerification {
         violationRules {
             rule {
                 limit {
-                    minimum = 0.5
+                    minimum = 0.7
                 }
             }
 
