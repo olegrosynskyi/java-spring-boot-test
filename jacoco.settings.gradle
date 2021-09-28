@@ -11,20 +11,27 @@ subprojects {
         finalizedBy jacocoTestReport
     }
 
+    def jacocoExclude = [
+            'com/skai/**/*Config.class',
+            'com/skai/**/*Configuration.class',
+    ]
+
     jacocoTestReport {
         dependsOn test
         finalizedBy jacocoTestCoverageVerification
         afterEvaluate {
             classDirectories.setFrom(files(classDirectories.files.collect {
-                fileTree(dir: it, exclude: [
-                        'com/skai/**/*Config.class',
-                        'com/skai/**/*Configuration.class',
-                ])
+                fileTree(dir: it, exclude: jacocoExclude)
             }))
         }
     }
 
     jacocoTestCoverageVerification {
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclude)
+            }))
+        }
         violationRules {
             rule {
                 limit {
