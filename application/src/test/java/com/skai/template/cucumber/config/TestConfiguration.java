@@ -1,4 +1,4 @@
-package com.skai.template.cucumber.confg;
+package com.skai.template.cucumber.config;
 
 import com.kenshoo.auth.JWTTokenHelper;
 import com.kenshoo.auth.KenshooPrincipal;

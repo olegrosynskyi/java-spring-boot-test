@@ -5,8 +5,9 @@ project.ext.set("libraries", "")
  * Once you will upgrade spring boot version all those dependencies will be updated accordingly
  */
 
-ext.cucumber_version = "6.11.0"
+ext.cucumber_version = "7.0.0"
 ext.common_platform_version = "5.1.431"
+ext['junit-jupiter.version'] = "5.8.1"
 
 project.libraries = [
         spring_boot_starter_jdbc     : 'org.springframework.boot:spring-boot-starter-jdbc',
@@ -36,6 +37,7 @@ project.libraries = [
         kjobster                     : 'com.kenshoo:kjobster:1.1.107',
         cucumber_java                : "io.cucumber:cucumber-java:${cucumber_version}",
         cucumber_junit_platform      : "io.cucumber:cucumber-junit-platform-engine:${cucumber_version}",
+        junit_platform_suite         : 'org.junit.platform:junit-platform-suite',
         cucumber_spring              : "io.cucumber:cucumber-spring:${cucumber_version}",
         wiremock                     : 'com.github.tomakehurst:wiremock:2.27.2',
         karate_apache                : 'com.intuit.karate:karate-apache:0.9.6',
