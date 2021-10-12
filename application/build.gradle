@@ -34,6 +34,7 @@ dependencies {
     testImplementation libraries.cucumber_junit_platform
     testImplementation libraries.cucumber_spring
     testImplementation libraries.wiremock
+    testImplementation libraries.awaitility
     testCompileOnly libraries.lombok
     testAnnotationProcessor libraries.lombok
 }

@@ -2,61 +2,55 @@ package com.skai.template.dataaccess.dao;
 
 import com.skai.template.Application;
 import com.skai.template.dataaccess.entities.User;
-import com.skai.template.dataaccess.table.UserTable;
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DirtiesContext
 @ActiveProfiles("test")
-@Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest(classes = Application.class)
 class UserDaoIntegrationTest {
 
     @Autowired
     private UserDao userDao;
-    @Autowired
-    private DSLContext dslContext;
-
-    private static final User USER_1 = User.builder().name("user_1").build();
-    private static final User USER_2 = User.builder().name("user_2").build();
-
-    @AfterEach
-    public void cleanUp() {
-        dslContext.truncate(UserTable.TABLE).execute();
-    }
 
     @Test
     void verifyUserCreation() {
-        assertEquals(1, userDao.create(USER_1));
-        assertEquals(1, userDao.create(USER_2));
+        long userId = createUser(UUID.randomUUID().toString());
+        assertThat(userId, greaterThan(0L));
     }
 
     @Test
     void verifyUserFetchingByName() {
-        userDao.create(USER_1);
-        userDao.create(USER_2);
+        String name = UUID.randomUUID().toString();
+        createUsers(name, UUID.randomUUID().toString());
 
-        Optional<User> result = userDao.findByName(USER_1.getName());
+        Optional<User> result = userDao.findByName(name);
         result.ifPresentOrElse(
-                user -> assertEquals(user.getName(), USER_1.getName()),
-                () -> fail("User not found by name : " + USER_1.getName()));
+                persistedUser -> assertEquals(persistedUser.getName(), name),
+                () -> fail("User not found by name : " + name));
     }
 
     @Test
     void verifyUserFetchingByNameWhenNotExists() {
-        userDao.create(USER_1);
+        createUser(UUID.randomUUID().toString());
         Optional<User> result = userDao.findByName("user_3");
         assertTrue(result.isEmpty(), "User found in DB when it does not suppose to exist");
+    }
+
+    private void createUsers(String... names) {
+        Arrays.stream(names).forEach(this::createUser);
+    }
+
+    private long createUser(String name) {
+        return userDao.create(User.builder().name(name).build());
     }
 }

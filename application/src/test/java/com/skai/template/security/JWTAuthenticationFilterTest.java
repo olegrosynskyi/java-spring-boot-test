@@ -32,7 +32,6 @@ public class JWTAuthenticationFilterTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
-    private final HttpServletRequest request = mock(HttpServletRequest.class);
     private final HttpServletResponse response = mock(HttpServletResponse.class);
     private final FilterChain filterChain = mock(FilterChain.class);
 
@@ -42,6 +41,7 @@ public class JWTAuthenticationFilterTest {
     @Test
     @SneakyThrows
     public void continueFilterChainInCaseNoTokenProvided() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn(null);
 
         filter.doFilterInternal(request, response, filterChain);
@@ -54,6 +54,7 @@ public class JWTAuthenticationFilterTest {
     @Test
     @SneakyThrows
     public void continueFilterChainIfTokenPrefixNotSupported() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn("not supported token");
 
         filter.doFilterInternal(request, response, filterChain);
@@ -66,6 +67,7 @@ public class JWTAuthenticationFilterTest {
     @Test
     @SneakyThrows
     public void stopFilterChainInCaseOfError() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn(JWTAuthenticationFilter.PREFIX + " test token");
         given(authenticationManager.authenticate(any(JWTAuthenticationToken.class))).willThrow(new BadCredentialsException("Provided credentials are not valid"));
 
@@ -78,6 +80,7 @@ public class JWTAuthenticationFilterTest {
     @Test
     @SneakyThrows
     public void authenticateInCaseOfValidToken() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
         Authentication authResult = mock(Authentication.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn(JWTAuthenticationFilter.PREFIX + "token");
         given(authenticationManager.authenticate(captor.capture())).willReturn(authResult);
