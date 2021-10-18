@@ -38,6 +38,11 @@ team to ask and discuss on our #microservices-discuss channel on slack)
    in most cases the setup will include your app and a mysql docker like this sample but your case might be different,  
    You can read more about compose [here](https://docs.docker.com/compose/gettingstarted/)
 
+### Gradle 7 Overview
+
+This template is running Gradle 7 which has the new way of managing dependency scopes. Dependency scope `compile` was deprecated in favor of `implementation`.
+Please check this overview [session](https://drive.google.com/file/d/1LorCUAA96qCd-XuSLVo9TVb__lGoDc2n/view?usp=sharing) which explains all the changes and new features the Gradle 7 has.
+
 ### Gradle Dependency Lock
 
 To achieve reproducible builds, it is necessary to lock versions of dependencies and transitive dependencies such that 
