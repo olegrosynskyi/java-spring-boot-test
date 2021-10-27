@@ -12,6 +12,12 @@ tasks.withType(Test) {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
     testLogging.showStandardStreams = true
+    doFirst {
+        // load Vault secrets so that they're available to Karate tests:
+        def props = new Properties()
+        file("${project.rootDir}/.env").withInputStream { props.load(it) }
+        props.entrySet().forEach {entry -> systemProperty entry.key, entry.value }
+    }
 }
 
 test {

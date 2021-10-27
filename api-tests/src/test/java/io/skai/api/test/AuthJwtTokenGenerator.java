@@ -5,14 +5,13 @@ import com.kenshoo.auth.KenshooPrincipal;
 import com.kenshoo.auth.UserRoleUtils;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class AuthJwtTokenGenerator {
 
     private static final String TEST_HMAC_SECRET_FROM_APP_PROPERTIES = "sKn25yqQLZmPTEMP";
+    private static final String HMAC_SECRET_ENVIRONMENT_KEY = "MICROCOSM_HMAC_SECRET";
     private final KenshooPrincipal kenshooPrincipal = KenshooPrincipal.newBuilder("api.tests@skai.io")
             .withAgencyId(2L)
             .withBillingId(3L)
@@ -29,19 +28,15 @@ public class AuthJwtTokenGenerator {
         try {
             return JWTTokenHelper.generateJsonWebToken(
                     kenshooPrincipal,
-                    TEST_HMAC_SECRET_FROM_APP_PROPERTIES,
+                    getHmacSecret(),
                     duration.toMillis());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
 
-    private Date getTokenExpirationDate() {
-        return new Date(LocalDateTime.now()
-                .plusDays(1)
-                .atZone(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli());
+    private String getHmacSecret() {
+        return Optional.ofNullable(System.getProperty(HMAC_SECRET_ENVIRONMENT_KEY))
+                .orElse(TEST_HMAC_SECRET_FROM_APP_PROPERTIES);
     }
-
 }
