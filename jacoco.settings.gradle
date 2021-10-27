@@ -12,8 +12,8 @@ subprojects {
     }
 
     def jacocoExclude = [
-            'com/skai/**/*Config.class',
-            'com/skai/**/*Configuration.class',
+            'io/skai/**/*Config.class',
+            'io/skai/**/*Configuration.class',
     ]
 
     jacocoTestReport {

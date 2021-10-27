@@ -34,7 +34,7 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
 
     def BUILD_NUMBER = project.hasProperty('buildNum') ? "$buildNum" : (System.env.BUILD_NUMBER != null) ? "${System.env.BUILD_NUMBER}" : 'undef'
-    group = 'com.skai.template'
+    group = 'io.skai.template'
     version = '0.1.' + BUILD_NUMBER
 
     sourceCompatibility = JavaVersion.VERSION_11
