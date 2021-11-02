@@ -23,9 +23,10 @@ recipes for this, and here they are.
 
 ### What you need (these requirements might change with time and new processes):
 1. an updated version of Docker installed on you machine (1.12.+ and up)
-1. docker-compose (1.12 and up) installed
-1. some way to launch everything integrated with your testing cycle (on Java we use Gradle plugins & tasks, on Python Invoke)
-1. login to with the following command `docker login kenshoo-docker.jfrog.io`
+2. latest [init.gradle](https://vault-staging.internalk-stg.com:8200/ui/vault/secrets/secret/show/teams/DEV_SHARED_SECRETS/aws-lab/init-gradle) file in your `.gradle` directory
+3. docker-compose (1.12 and up) installed
+4. some way to launch everything integrated with your testing cycle (on Java we use Gradle plugins & tasks, on Python Invoke)
+5. login to with the following command `docker login kenshoo-docker.jfrog.io`
 
 (there are multiple ways to install and operate docker, from the official installs for your OS, through all kinds of
 hacks up to installing it via an external server, same goes for docker-compose. We encourage you to not try the first
