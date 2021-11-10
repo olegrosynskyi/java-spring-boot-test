@@ -26,7 +26,15 @@ dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
     captureContainersOutput = true
     composeLogToFile =  project.file('build/logs/containers/compose.log')
+
+    onlyResources {
+        scale = ['app': 0]
+    }
 }
+
+composeDown.finalizedBy(onlyResourcesComposeDown)
+composeDown.dependsOn(populateEnvVarsWithSecrets)
+composeUp.dependsOn(populateEnvVarsWithSecrets)
 
 subprojects {
     apply plugin: 'java'
@@ -80,8 +88,3 @@ task copyAppLog(type: Wrapper) {
 task cleanDocker(type: Exec) {
     commandLine ("docker", "rm", "-f", "app", "app_db", "redis_db", "app_rabbit", "app_mock").setIgnoreExitValue(true)
 }
-
-
-
-composeDown.dependsOn(populateEnvVarsWithSecrets)
-composeUp.dependsOn(populateEnvVarsWithSecrets)
