@@ -6,7 +6,7 @@ buildscript {
     ext {
         springBootVersion = '2.5.7'
         dependencyManagementPluginVersion = '1.0.11.RELEASE'
-        dockerComposePluginVersion = '0.14.9'
+        dockerComposePluginVersion = '0.14.+'
         gradleTasksPluginVersion = '0.1.+'
         vaultkaPluginVersion = '0.1.+'
     }
@@ -16,6 +16,9 @@ buildscript {
         classpath "gradle.plugin.com.avast.gradle:gradle-docker-compose-plugin:${dockerComposePluginVersion}"
         classpath "com.kenshoo.tasksplugin:gradle-tasks-plugin:${gradleTasksPluginVersion}"
         classpath "com.kenshoo.vaultkaplugin:vaultka-gradle-plugin:${vaultkaPluginVersion}"
+    }
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
     }
 }
 
