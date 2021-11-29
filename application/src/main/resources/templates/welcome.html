@@ -15,6 +15,7 @@
              class="d-inline-block align-top" alt="">
         <span class="navbar-text p-0" th:text="${@environment.getProperty('spring.application.name')}"></span>
     </a>
+    <span class="badge bg-success me-sm-3">v<th:block th:text="${version}"></th:block></span>
 </nav>
 <div class="container" style="padding-top: 40px">
     <div class="jumbotron shadow bg-white rounded">
@@ -28,9 +29,8 @@
                     You can modify the code in this repository to build your app.</p>
                 <p class="lead lead bg-light fst-italic fs-6" >You can place some additional information about your app to this page. It can be useful for other people who will use your application.</p>
                 <hr class="my-4">
-                <p>Application API documented via Swagger. Actuator API for managing and monitoring the application.</p>
-                <a class="btn btn btn-success btn-lg me-3" target="_blank" href="/swagger-ui/index.html" role="button">Swagger</a>
-                <a class="btn btn btn-warning btn-lg me-3" target="_blank" href="/actuator" role="button">Actuator</a>
+                <p>Application and Actuator API documented via Swagger. Actuator API for managing and monitoring the application.</p>
+                <a class="btn btn btn-success btn-lg me-3" target="_blank" href="/swagger-ui.html" role="button">Swagger</a>
                 <hr class="my-4">
             </div>
         </div>

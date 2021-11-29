@@ -29,10 +29,13 @@ spring:
 server:
   shutdown: graceful
 management:
+  info:
+    java:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: 'loggers,health,heapdump,metrics,threaddump'
+        include: 'loggers,health,heapdump,metrics,threaddump,env,info'
   endpoint:
     health:
       show-details: always
@@ -65,3 +68,18 @@ aws:
   accessKeyAssumeRole: '${AWS_ACCESS_KEY_ID_ASSUME_ROLE:}'
   secretKeyAssumeRole: '${AWS_SECRET_ACCESS_KEY_ASSUME_ROLE:}'
   roleAppName: '${spring.application.name}'
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    groups:
+      enabled: true
+  swagger-ui:
+    display-request-duration: true
+    groups-order: DESC
+    operationsSorter: method
+  show-actuator: true
+  group-configs:
+    - group: Application API
+      paths-to-match: /api/v1/**
+    - group: Actuator API
+      paths-to-match: /actuator/**

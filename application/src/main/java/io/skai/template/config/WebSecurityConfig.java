@@ -4,6 +4,8 @@ import io.skai.template.security.Http401ForbiddenEntryPoint;
 import io.skai.template.security.JWTAuthenticationFilter;
 import io.skai.template.security.JWTAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,7 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .addFilterBefore(jwtAuthenticationFilter(), BasicAuthenticationFilter.class)
                 .authorizeRequests()
-                .antMatchers("/", "/v2/api-docs", "/actuator/**").permitAll()
+                .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                .antMatchers("/", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable()
@@ -39,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/css/**", "/images/**",
-                "/webjars/**", "/favicon.ico", "/swagger-ui/**", "/swagger-resources/**");
+                "/webjars/**", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html");
     }
 
     @Override

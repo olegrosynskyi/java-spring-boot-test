@@ -44,6 +44,10 @@ application {
     applicationName = 'app'
 }
 
+springBoot {
+    buildInfo()
+}
+
 bootDistTar {
     archiveBaseName = "app"
     archiveExtension = "tar"

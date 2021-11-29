@@ -7,12 +7,11 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.marker.Markers;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.UUID;
 
@@ -37,8 +36,7 @@ public class TestController {
 
     @Timed
     @PostMapping
-    public String post(@ApiIgnore Authentication authentication) {
-        KenshooPrincipal principal = (KenshooPrincipal) authentication.getPrincipal();
+    public String post(@AuthenticationPrincipal KenshooPrincipal principal) {
         return "You successfully sent a POST request to a secured endpoint. " +
                 "KenshooPrincipal details : email : " + principal.getEmail();
     }
