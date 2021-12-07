@@ -43,15 +43,15 @@ project.libraries = [
         karate_junit5                : 'com.intuit.karate:karate-junit5:1.1.0',
         awaitility                   : 'org.awaitility:awaitility',
         cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.6.0',
-        bootstrap_webjars            : 'org.webjars:bootstrap:5.0.1',
-        swagger                      : 'org.springdoc:springdoc-openapi-ui:1.5.12',
+        bootstrap_webjars            : 'org.webjars:bootstrap:5.1.3',
+        swagger                      : 'org.springdoc:springdoc-openapi-ui:1.5.13',
         kenshoo_auth                 : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
             exclude group: 'org.json', module: 'json'
         },
-        logback_encoder              : 'net.logstash.logback:logstash-logback-encoder:6.6',
+        logback_encoder              : 'net.logstash.logback:logstash-logback-encoder:7.0.1',
         jaxb                         : 'javax.xml.bind:jaxb-api:2.3.1',
         commons_lang3                : 'org.apache.commons:commons-lang3',
-        guava                        : 'com.google.guava:guava:30.1.1-jre',
+        guava                        : 'com.google.guava:guava:31.0.1-jre',
         lombok                       : 'org.projectlombok:lombok',
 ]
