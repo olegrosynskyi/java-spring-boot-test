@@ -5,12 +5,12 @@ categories:
     labels:
       - 'feature'
       - 'enhancement'
-  - title: '🐛 Bug Fixes'
+  - title: '🐞 Bug Fixes'
     labels:
       - 'fix'
       - 'bugfix'
       - 'bug'
-  - title: '📝 Documentation updates'
+  - title: '📔 Documentation updates'
     labels:
       - 'doc'
       - 'documentation'
@@ -18,6 +18,9 @@ categories:
     labels:
       - 'chore'
       - 'maintenance'
+  - title: '🔨 Dependency Upgrades'
+    labels:
+      - 'dependency-upgrade'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
