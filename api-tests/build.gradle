@@ -1,5 +1,4 @@
 dependencies {
-    testImplementation libraries.karate_apache
     testImplementation libraries.karate_junit5
     testImplementation libraries.cucumber_reporting
     testImplementation libraries.commons_lang3
