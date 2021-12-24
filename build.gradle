@@ -5,6 +5,7 @@ apply plugin: "com.kenshoo.vaultkaplugin"
 buildscript {
     ext {
         springBootVersion = '2.6.2'
+        springCloudVersion = '2021.0.0'
         dependencyManagementPluginVersion = '1.0.11.RELEASE'
         dockerComposePluginVersion = '0.14.+'
         gradleTasksPluginVersion = '0.1.+'
@@ -62,7 +63,8 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
         }
     }
 }
