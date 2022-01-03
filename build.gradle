@@ -39,6 +39,7 @@ dockerCompose {
 composeDown.finalizedBy(onlyResourcesComposeDown)
 composeDown.dependsOn(populateEnvVarsWithSecrets)
 composeUp.dependsOn(populateEnvVarsWithSecrets)
+onlyResourcesComposeUp.dependsOn(populateEnvVarsWithSecrets)
 
 subprojects {
     apply plugin: 'java'
