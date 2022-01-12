@@ -50,6 +50,12 @@ management:
         enabled: '${HOSTED_GRAPHITE_ENABLED:false}'
         step: 30s
         tags-as-prefix: 'prefix,appName,environmentType'
+      statsd:
+        flavor: datadog
+        host: '${DD_AGENT_HOST:localhost}'
+        port: '${DD_AGENT_UDP_PORT:8125}'
+        enabled: '${DD_AGENT_ENABLED:false}'
+    use-global-registry: true
 rabbit:
   host: '${RABBITMQ_ADDRESS:localhost}'
   port: '${RABBITMQ_PORT:5672}'

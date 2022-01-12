@@ -14,6 +14,7 @@ dependencies {
     implementation libraries.commons_lang3
     implementation libraries.spring_boot_starter_actuator
     implementation libraries.micrometer_registry_graphite
+    implementation libraries. micrometer_registry_statsd
     implementation libraries.bootstrap_webjars
     implementation libraries.swagger
     implementation libraries.kenshoo_auth
