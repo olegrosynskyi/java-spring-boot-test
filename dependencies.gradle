@@ -6,7 +6,7 @@ project.ext.set("libraries", "")
  */
 
 ext.cucumber_version = "7.2.2"
-ext.common_platform_version = "5.1.431"
+ext.common_platform_version = "6.0.443"
 
 project.libraries = [
         spring_boot_starter_jdbc     : 'org.springframework.boot:spring-boot-starter-jdbc',
@@ -22,19 +22,14 @@ project.libraries = [
         configuration_processor      : 'org.springframework.boot:spring-boot-configuration-processor',
         liquibase                    : 'org.liquibase:liquibase-core',
         mysql_connector_java         : 'mysql:mysql-connector-java',
-        metricsReporter              : dependencies.create("com.kenshoo:spring-graphite-reporter3-1:${common_platform_version}") {
-            exclude group: 'com.jayway.awaitility', module: 'awaitility'
-            exclude group: 'io.dropwizard.metrics', module: 'metrics-core'
-            exclude group: 'org.springframework', module: 'spring-context'
-            exclude group: 'com.google.guava', module: 'guava'
-        },
         awsProvider                  : dependencies.create("com.kenshoo:aws-credentials-provider:${common_platform_version}") {
             exclude group: 'org.apache.commons', module: 'commons-lang'
         },
         commons_pool2                : 'org.apache.commons:commons-pool2',
-        micrometer_registry_graphite : 'io.micrometer:micrometer-registry-graphite',
         micrometer_registry_statsd   : 'io.micrometer:micrometer-registry-statsd',
+        datadog_utils                : "com.kenshoo:datadog-utils:${common_platform_version}",
         kjobster                     : 'com.kenshoo:kjobster:1.1.107',
+        dropwizard_metrics_core      : 'io.dropwizard.metrics:metrics-core',
         cucumber_java                : "io.cucumber:cucumber-java:${cucumber_version}",
         cucumber_junit_platform      : "io.cucumber:cucumber-junit-platform-engine:${cucumber_version}",
         junit_platform_suite         : 'org.junit.platform:junit-platform-suite',

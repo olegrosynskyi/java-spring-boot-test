@@ -13,15 +13,15 @@ dependencies {
     implementation libraries.commons_pool2
     implementation libraries.commons_lang3
     implementation libraries.spring_boot_starter_actuator
-    implementation libraries.micrometer_registry_graphite
     implementation libraries. micrometer_registry_statsd
+    implementation libraries. datadog_utils
     implementation libraries.bootstrap_webjars
     implementation libraries.swagger
     implementation libraries.kenshoo_auth
-    implementation libraries.metricsReporter
     implementation libraries.logback_encoder
     implementation libraries.guava
     implementation libraries.kjobster
+    implementation libraries.dropwizard_metrics_core
     implementation libraries.awsProvider
     implementation libraries.jaxb
     compileOnly libraries.lombok

@@ -1,6 +1,7 @@
 package io.skai.template.controller;
 
 import com.kenshoo.auth.KenshooPrincipal;
+import com.kenshoo.datadog.MetricNameBuilder;
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
-import static com.codahale.metrics.MetricRegistry.name;
 
 @RestController
 @Slf4j
@@ -23,7 +23,7 @@ import static com.codahale.metrics.MetricRegistry.name;
 @RequiredArgsConstructor
 public class TestController {
 
-    private static final String GET_REQUEST_METRIC_NAME = name(TestController.class, "get");
+    private static final String GET_REQUEST_METRIC_NAME = new MetricNameBuilder(TestController.class).name("get");
 
     private final MeterRegistry meterRegistry;
 

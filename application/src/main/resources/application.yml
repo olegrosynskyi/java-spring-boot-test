@@ -43,13 +43,6 @@ management:
         time-to-live: 30s
   metrics:
     export:
-      graphite:
-        host: bc0087a2.carbon.ks.hostedgraphite.com
-        port: 2003
-        secret: '${HOSTED_GRAPHITE_PREFIX:NONE}'
-        enabled: '${HOSTED_GRAPHITE_ENABLED:false}'
-        step: 30s
-        tags-as-prefix: 'prefix,appName,environmentType'
       statsd:
         flavor: datadog
         host: '${DD_AGENT_HOST:localhost}'
