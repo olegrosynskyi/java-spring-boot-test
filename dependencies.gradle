@@ -5,7 +5,7 @@ project.ext.set("libraries", "")
  * Once you will upgrade spring boot version all those dependencies will be updated accordingly
  */
 
-ext.cucumber_version = "7.2.2"
+ext.cucumber_version = "7.2.3"
 ext.common_platform_version = "6.0.443"
 
 project.libraries = [
