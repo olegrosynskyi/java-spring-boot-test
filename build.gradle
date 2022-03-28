@@ -4,7 +4,7 @@ apply plugin: "com.kenshoo.vaultkaplugin"
 
 buildscript {
     ext {
-        springBootVersion = '2.6.4'
+        springBootVersion = '2.6.5'
         springCloudVersion = '2021.0.1'
         dependencyManagementPluginVersion = '1.0.11.RELEASE'
         dockerComposePluginVersion = '0.15.+'
@@ -30,8 +30,9 @@ dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
     captureContainersOutput = true
     composeLogToFile =  project.file('build/logs/containers/compose.log')
-
+    projectName = "template" // change to correct project name
     onlyResources {
+        projectName = "template"  // change to correct project name
         scale = ['app': 0]
     }
 }
