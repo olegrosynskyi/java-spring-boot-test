@@ -49,6 +49,9 @@ management:
         port: '${DD_AGENT_UDP_PORT:8125}'
         enabled: '${DD_AGENT_ENABLED:false}'
     use-global-registry: true
+    enable:
+      jvm: false
+      system.cpu: false
 rabbit:
   host: '${RABBITMQ_ADDRESS:localhost}'
   port: '${RABBITMQ_PORT:5672}'
