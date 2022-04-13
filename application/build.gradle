@@ -10,6 +10,7 @@ dependencies {
     implementation libraries.spring_boot_starter_thymeleaf
     implementation libraries.spring_boot_starter_security
     implementation libraries.spring_boot_starter_redis
+    implementation libraries.spring_aspects
     implementation libraries.commons_pool2
     implementation libraries.commons_lang3
     implementation libraries.spring_boot_starter_actuator

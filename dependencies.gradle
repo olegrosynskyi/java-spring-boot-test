@@ -19,6 +19,7 @@ project.libraries = [
         spring_boot_devtools         : 'org.springframework.boot:spring-boot-devtools',
         spring_boot_starter_test     : 'org.springframework.boot:spring-boot-starter-test',
         spring_boot_security_test    : 'org.springframework.security:spring-security-test',
+        spring_aspects               : 'org.springframework:spring-aspects',
         configuration_processor      : 'org.springframework.boot:spring-boot-configuration-processor',
         liquibase                    : 'org.liquibase:liquibase-core',
         mysql_connector_java         : 'mysql:mysql-connector-java',
