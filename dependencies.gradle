@@ -45,7 +45,7 @@ project.libraries = [
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
             exclude group: 'org.json', module: 'json'
         },
-        logback_encoder              : 'net.logstash.logback:logstash-logback-encoder:7.0.1',
+        logback_encoder              : 'net.logstash.logback:logstash-logback-encoder:7.1.1',
         jaxb                         : 'javax.xml.bind:jaxb-api:2.3.1',
         commons_lang3                : 'org.apache.commons:commons-lang3',
         guava                        : 'com.google.guava:guava:31.1-jre',
