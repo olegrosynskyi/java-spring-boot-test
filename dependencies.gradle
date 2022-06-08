@@ -36,7 +36,7 @@ project.libraries = [
         junit_platform_suite         : 'org.junit.platform:junit-platform-suite',
         cucumber_spring              : "io.cucumber:cucumber-spring:${cucumber_version}",
         wiremock                     : 'com.github.tomakehurst:wiremock:2.27.2',
-        karate_junit5                : 'com.intuit.karate:karate-junit5:1.1.0',
+        karate_junit5                : 'com.intuit.karate:karate-junit5:1.2.0',
         awaitility                   : 'org.awaitility:awaitility',
         cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.7.0',
         bootstrap_webjars            : 'org.webjars:bootstrap:5.1.3',
