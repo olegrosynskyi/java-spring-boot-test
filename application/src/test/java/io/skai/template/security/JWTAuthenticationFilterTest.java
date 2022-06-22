@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,7 +33,7 @@ public class JWTAuthenticationFilterTest {
     @InjectMocks
     private JWTAuthenticationFilter filter;
     @Mock
-    private AuthenticationManager authenticationManager;
+    private AuthenticationProvider authenticationProvider;
 
     private final HttpServletResponse response = mock(HttpServletResponse.class);
     private final FilterChain filterChain = mock(FilterChain.class);
@@ -50,7 +50,7 @@ public class JWTAuthenticationFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(authenticationManager, never()).authenticate(any(Authentication.class));
+        verify(authenticationProvider, never()).authenticate(any(Authentication.class));
         assertThat(SecurityContextHolder.getContext().getAuthentication(), nullValue());
     }
 
@@ -63,7 +63,7 @@ public class JWTAuthenticationFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(authenticationManager, never()).authenticate(any(Authentication.class));
+        verify(authenticationProvider, never()).authenticate(any(Authentication.class));
         assertThat(SecurityContextHolder.getContext().getAuthentication(), nullValue());
     }
 
@@ -72,7 +72,7 @@ public class JWTAuthenticationFilterTest {
     public void stopFilterChainInCaseOfError() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn(JWTAuthenticationFilter.PREFIX + " test token");
-        given(authenticationManager.authenticate(any(JWTAuthenticationToken.class))).willThrow(new BadCredentialsException("Provided credentials are not valid"));
+        given(authenticationProvider.authenticate(any(JWTAuthenticationToken.class))).willThrow(new BadCredentialsException("Provided credentials are not valid"));
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -86,7 +86,7 @@ public class JWTAuthenticationFilterTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         Authentication authResult = mock(Authentication.class);
         given(request.getHeader(HttpHeaders.AUTHORIZATION)).willReturn(JWTAuthenticationFilter.PREFIX + "token");
-        given(authenticationManager.authenticate(captor.capture())).willReturn(authResult);
+        given(authenticationProvider.authenticate(captor.capture())).willReturn(authResult);
 
         filter.doFilterInternal(request, response, filterChain);
 
