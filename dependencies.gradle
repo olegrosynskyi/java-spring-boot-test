@@ -40,7 +40,7 @@ project.libraries = [
         awaitility                   : 'org.awaitility:awaitility',
         cucumber_reporting           : 'net.masterthought:cucumber-reporting:5.7.2',
         bootstrap_webjars            : 'org.webjars:bootstrap:5.1.3',
-        swagger                      : 'org.springdoc:springdoc-openapi-ui:1.6.8',
+        swagger                      : 'org.springdoc:springdoc-openapi-ui:1.6.9',
         kenshoo_auth                 : dependencies.create('com.kenshoo.ls:kenshoo-auth:50.152') {
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
             exclude group: 'org.json', module: 'json'
