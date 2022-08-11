@@ -6,7 +6,7 @@ project.ext.set("libraries", "")
  */
 
 ext.cucumber_version = "7.6.0"
-ext.common_platform_version = "6.0.443"
+ext.common_platform_version = "6.0.450"
 
 project.libraries = [
         spring_boot_starter_jdbc     : 'org.springframework.boot:spring-boot-starter-jdbc',
