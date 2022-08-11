@@ -1,5 +1,6 @@
 package io.skai.template.config;
 
+import com.kenshoo.auth.UserRoleUtils;
 import io.skai.template.security.Http401ForbiddenEntryPoint;
 import io.skai.template.security.JWTAuthenticationFilter;
 import io.skai.template.security.JWTAuthenticationProvider;
@@ -25,11 +26,12 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-         return httpSecurity.csrf().disable()
+        return httpSecurity.csrf().disable()
                 .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
                 .authenticationProvider(jwtAuthenticationProvider)
                 .authorizeRequests()
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                .antMatchers("/actuator/**").hasAuthority(UserRoleUtils.KENSHOO_ADMIN_ROLE)
                 .antMatchers("/", "/v3/api-docs/**", "/css/**", "/images/**",
                         "/webjars/**", "/favicon.ico", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
