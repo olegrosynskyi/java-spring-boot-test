@@ -29,7 +29,7 @@ project.libraries = [
         commons_pool2                : 'org.apache.commons:commons-pool2',
         micrometer_registry_statsd   : 'io.micrometer:micrometer-registry-statsd',
         datadog_utils                : "com.kenshoo:datadog-utils:${common_platform_version}",
-        kjobster                     : 'com.kenshoo:kjobster:1.1.107',
+        kjobster                     : 'com.kenshoo:kjobster:1.1.110',
         dropwizard_metrics_core      : 'io.dropwizard.metrics:metrics-core',
         cucumber_java                : "io.cucumber:cucumber-java:${cucumber_version}",
         cucumber_junit_platform      : "io.cucumber:cucumber-junit-platform-engine:${cucumber_version}",
