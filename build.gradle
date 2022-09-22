@@ -4,7 +4,7 @@ apply plugin: "com.kenshoo.vaultkaplugin"
 
 buildscript {
     ext {
-        springBootVersion = '2.7.3'
+        springBootVersion = '2.7.4'
         springCloudVersion = '2021.0.4'
         dependencyManagementPluginVersion = '1.0.14.RELEASE'
         dockerComposePluginVersion = '0.16.+'
