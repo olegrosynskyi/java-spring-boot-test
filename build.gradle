@@ -30,9 +30,7 @@ dockerCompose {
     captureContainersOutputToFiles =  project.file('build/logs/containers/')
     captureContainersOutput = true
     composeLogToFile =  project.file('build/logs/containers/compose.log')
-    projectName = "template" // change to correct project name
     onlyResources {
-        projectName = "template"  // change to correct project name
         scale = ['app': 0]
     }
 }
