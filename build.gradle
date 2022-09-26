@@ -35,9 +35,16 @@ dockerCompose {
     }
 }
 
+task dockerBuild(type: Exec){
+    commandLine "docker", "build", "-t", "app", "."
+}
+
+dockerBuild.mustRunAfter("application:assemble")
+
 composeDown.finalizedBy(onlyResourcesComposeDown)
 composeDown.dependsOn(populateEnvVarsWithSecrets)
 composeUp.dependsOn(populateEnvVarsWithSecrets)
+composeUp.mustRunAfter(dockerBuild)
 onlyResourcesComposeUp.dependsOn(populateEnvVarsWithSecrets)
 
 subprojects {
@@ -72,10 +79,6 @@ subprojects {
 task updateLocks(type: GradleBuild) {
     startParameter.setWriteDependencyLocks(true)
     tasks = ['assemble']
-}
-
-task dockerBuild(type: Exec){
-    commandLine "docker", "build", "-t", "app", "."
 }
 
 task publish(type: Wrapper) {
