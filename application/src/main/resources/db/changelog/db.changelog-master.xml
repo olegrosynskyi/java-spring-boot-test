@@ -11,10 +11,38 @@
             </not>
         </preConditions>
         <createTable tableName="user">
-            <column  name="id" type="BIGINT" autoIncrement="true" >
-                <constraints primaryKey="true" nullable="false" />
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(50)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="campaigns table" author="olegrosynskyi">
+        <preConditions>
+            <not>
+                <tableExists tableName="campaigns"/>
+            </not>
+        </preConditions>
+        <createTable tableName="campaigns">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ks_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated" type="TIMESTAMP" defaultValueComputed="NULL ON UPDATE CURRENT_TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
         </createTable>
     </changeSet>
 
