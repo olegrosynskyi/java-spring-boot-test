@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Value
 @Builder
-public class Campaigns {
+public class Campaign {
 
     long id;
     String name;

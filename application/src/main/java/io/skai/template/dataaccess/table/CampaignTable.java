@@ -9,11 +9,11 @@ import org.jooq.impl.TableImpl;
 
 import java.time.LocalDateTime;
 
-public class CampaignsTable extends TableImpl<Record> {
+public class CampaignTable extends TableImpl<Record> {
 
-    public static final CampaignsTable TABLE = new CampaignsTable(DSL.name("campaigns"));
+    public static final CampaignTable TABLE = new CampaignTable(DSL.name("campaign"));
 
-    public CampaignsTable(Name name) {
+    public CampaignTable(Name name) {
         super(name);
     }
 
