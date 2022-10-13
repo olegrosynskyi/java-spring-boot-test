@@ -11,12 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.fail;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = Application.class)
@@ -43,25 +44,26 @@ class CampaignDaoIntegrationTest {
 
         long numberOfRecords = createCampaign(campaign);
 
-        assertThat(numberOfRecords, greaterThan(0L));
+        assertThat(numberOfRecords, is(1L));
     }
 
     @Test
     public void verifyCampaignFindById() {
+        final long campaignId = 500L;
+        final LocalDateTime createdAndLastUpdatedTime = LocalDateTime.now(ZoneOffset.UTC).withNano(0);
         final Campaign campaign = Campaign.builder()
+                .id(campaignId)
                 .name("name_2")
                 .ksName("ks_name_2")
                 .status(Status.PAUSED)
+                .createDate(createdAndLastUpdatedTime)
+                .lastUpdated(createdAndLastUpdatedTime)
                 .build();
 
         createCampaign(campaign);
-        final Campaign lastCampaignRecord = getLastRecordFromCampaignsDB();
-        final long lastCampaignRecordId = lastCampaignRecord.getId();
-        final Optional<Campaign> result = campaignDao.findById(lastCampaignRecordId);
+        final Optional<Campaign> result = campaignDao.findById(campaignId);
 
-        result.ifPresentOrElse(
-                persistedCampaign -> assertThat(persistedCampaign, is(lastCampaignRecord)),
-                () -> fail("Campaign not found by id : " + lastCampaignRecordId));
+        assertThat(result, is(Optional.of(campaign)));
     }
 
     @Test
@@ -73,15 +75,15 @@ class CampaignDaoIntegrationTest {
     @Test
     public void verifyCampaignUpdateWithSameId() {
         final Campaign campaign = Campaign.builder()
+                .id(500L)
                 .name("name_3")
                 .ksName("ks_name_3")
                 .status(Status.ACTIVE)
                 .build();
 
         createCampaign(campaign);
-        final Campaign lastCampaignRecord = getLastRecordFromCampaignsDB();
         final Campaign campaignToUpdate = Campaign.builder()
-                .id(lastCampaignRecord.getId())
+                .id(campaign.getId())
                 .name("name_33")
                 .ksName("ks_name_33")
                 .status(Status.PAUSED)
@@ -89,12 +91,14 @@ class CampaignDaoIntegrationTest {
 
         final long numberOfUpdatedRecords = campaignDao.update(campaignToUpdate);
 
-        assertThat(numberOfUpdatedRecords, greaterThan(0L));
+        assertThat(numberOfUpdatedRecords, is(1L));
     }
 
     @Test
     public void verifyCampaignWhenLastUpdateFieldUpdated() throws InterruptedException {
+        final long campaignId = 500L;
         final Campaign campaign = Campaign.builder()
+                .id(campaignId)
                 .name("name_4")
                 .ksName("ks_name_4")
                 .status(Status.PAUSED)
@@ -102,35 +106,36 @@ class CampaignDaoIntegrationTest {
 
         createCampaign(campaign);
         TimeUnit.MILLISECONDS.sleep(1500L);
-        final Campaign lastCampaignRecordBeforeUpdate = getLastRecordFromCampaignsDB();
+        final Campaign campaignRecordBeforeUpdate = campaignDao.findById(campaignId).get();
         final Campaign campaignToUpdate = Campaign.builder()
-                .id(lastCampaignRecordBeforeUpdate.getId())
+                .id(campaignId)
                 .name("name_44")
                 .ksName("ks_name_44")
                 .status(Status.PAUSED)
                 .build();
 
-        assertThat(lastCampaignRecordBeforeUpdate.getLastUpdated(), is(notNullValue()));
+        assertThat(campaignRecordBeforeUpdate.getLastUpdated(), is(notNullValue()));
 
         campaignDao.update(campaignToUpdate);
-        final Campaign lastCampaignRecordAfterUpdate = getLastRecordFromCampaignsDB();
+        final Campaign campaignRecordAfterUpdate = campaignDao.findById(campaignId).get();
 
-        assertThat(lastCampaignRecordAfterUpdate.getLastUpdated(), is(notNullValue()));
-        assertThat(lastCampaignRecordAfterUpdate.getLastUpdated(), not(equalTo(lastCampaignRecordBeforeUpdate.getLastUpdated())));
+        assertThat(campaignRecordAfterUpdate.getLastUpdated(), is(notNullValue()));
+        assertThat(campaignRecordAfterUpdate.getLastUpdated(), not(equalTo(campaignRecordBeforeUpdate.getLastUpdated())));
     }
 
     @Test
     public void verifyCampaignCreateDateWhenCreateCampaign() {
         final Campaign campaign = Campaign.builder()
+                .id(228L)
                 .name("name_5")
                 .ksName("ks_name_5")
                 .status(Status.PAUSED)
                 .build();
 
         createCampaign(campaign);
-        final Campaign lastCampaignRecord = getLastRecordFromCampaignsDB();
+        final Campaign campaignRecord = campaignDao.findById(campaign.getId()).get();
 
-        assertThat(lastCampaignRecord.getCreateDate(), is(notNullValue()));
+        assertThat(campaignRecord.getCreateDate(), is(notNullValue()));
     }
 
     @Test
@@ -150,54 +155,38 @@ class CampaignDaoIntegrationTest {
     @Test
     public void verifyCampaignDeleteById() {
         final Campaign campaign = Campaign.builder()
+                .id(322L)
                 .name("name_6")
                 .ksName("ks_name_6")
                 .status(Status.ACTIVE)
                 .build();
 
         createCampaign(campaign);
-        final Campaign lastCampaignRecordBeforeDelete = getLastRecordFromCampaignsDB();
-        final long numberOfUpdatedRecords = campaignDao.deleteById(lastCampaignRecordBeforeDelete.getId());
+        final Campaign campaignRecordBeforeDelete = campaignDao.findById(campaign.getId()).get();
+        final long numberOfUpdatedRecords = campaignDao.deleteById(campaignRecordBeforeDelete.getId());
 
-        assertThat(numberOfUpdatedRecords, greaterThan(0L));
+        assertThat(numberOfUpdatedRecords, is(1L));
     }
 
     @Test
     public void verifyCampaignMarkedAsDeletedWhenDeleteById() {
         final Campaign campaign = Campaign.builder()
+                .id(110L)
                 .name("name_7")
                 .ksName("ks_name_7")
                 .status(Status.PAUSED)
                 .build();
 
         createCampaign(campaign);
-        final Campaign lastCampaignRecordBeforeDelete = getLastRecordFromCampaignsDB();
-        campaignDao.deleteById(lastCampaignRecordBeforeDelete.getId());
+        campaignDao.deleteById(campaign.getId());
 
-        assertThat(lastCampaignRecordBeforeDelete.getStatus(), is(Status.PAUSED));
+        final Campaign campaignRecordAfterDelete = campaignDao.findById(campaign.getId()).get();
 
-        final Campaign lastCampaignRecordAfterDelete = getLastRecordFromCampaignsDB();
-
-        assertThat(lastCampaignRecordAfterDelete.getStatus(), is(Status.DELETED));
+        assertThat(campaignRecordAfterDelete.getStatus(), is(Status.DELETED));
     }
 
     private long createCampaign(Campaign campaign) {
         return campaignDao.create(campaign);
-    }
-
-    private Campaign getLastRecordFromCampaignsDB() {
-        return dslContext.selectFrom(CampaignTable.TABLE)
-                .orderBy(CampaignTable.TABLE.id.desc())
-                .limit(1)
-                .fetchOne(campaignRec -> Campaign.builder()
-                        .id(campaignRec.get(CampaignTable.TABLE.id))
-                        .name(campaignRec.get(CampaignTable.TABLE.name))
-                        .ksName(campaignRec.get(CampaignTable.TABLE.ksName))
-                        .status(Status.valueOf(campaignRec.get(CampaignTable.TABLE.status)))
-                        .createDate(campaignRec.get(CampaignTable.TABLE.createDate))
-                        .lastUpdated(campaignRec.get(CampaignTable.TABLE.lastUpdated))
-                        .build());
-
     }
 
 }

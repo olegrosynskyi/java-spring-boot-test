@@ -23,10 +23,12 @@ public class CampaignDaoImpl implements CampaignDao {
         log.info("Create campaign : {}", campaign);
         return dslContext.insertInto(
                 CampaignTable.TABLE,
+                CampaignTable.TABLE.id,
                 CampaignTable.TABLE.name,
                 CampaignTable.TABLE.ksName,
                 CampaignTable.TABLE.status
         ).values(
+                campaign.getId(),
                 campaign.getName(),
                 campaign.getKsName(),
                 campaign.getStatus().name()
