@@ -26,6 +26,17 @@ class CampaignDaoIntegrationTest {
     private CampaignDao campaignDao;
     @Autowired
     private DSLContext dslContext;
+    private static final long CAMPAIGN_ID = 500L;
+    private static final long CAMPAIGN_WRONG_ID = 999_999_999L;
+    private static final String CAMPAIGN_NAME = "name";
+
+    private static final String CAMPAIGN_KS_NAME = "ks_name";
+    private static final Status CAMPAIGN_STATUS = Status.ACTIVE;
+
+    private static final String CAMPAIGN_UPDATED_NAME = "name_1";
+    private static final String CAMPAIGN_UPDATED_KS_NAME = "ks_name_2";
+    private static final Status CAMPAIGN_UPDATED_STATUS = Status.PAUSED;
+    private static final Status CAMPAIGN_DELETED_STATUS = Status.DELETED;
 
     @BeforeEach
     public void init() {
@@ -36,9 +47,9 @@ class CampaignDaoIntegrationTest {
     @Test
     public void verifyCampaignCreation() {
         final Campaign campaign = Campaign.builder()
-                .name("name_1")
-                .ksName("ks_name_1")
-                .status(Status.ACTIVE)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         final long numberOfRecords = createCampaign(campaign);
@@ -48,12 +59,11 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignFindById() {
-        final long CAMPAIGN_ID = 500L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_2")
-                .ksName("ks_name_2")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         createCampaign(campaign);
@@ -61,9 +71,9 @@ class CampaignDaoIntegrationTest {
 
         assertThat(result.isPresent(), is(true));
 
-        assertThat(result.get().getName(), is("name_2"));
-        assertThat(result.get().getKsName(), is("ks_name_2"));
-        assertThat(result.get().getStatus(), is(Status.PAUSED));
+        assertThat(result.get().getName(), is(CAMPAIGN_NAME));
+        assertThat(result.get().getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(result.get().getStatus(), is(CAMPAIGN_STATUS));
 
         assertThat(result.get().getCreateDate(), is(notNullValue()));
         assertThat(result.get().getLastUpdated(), is(notNullValue()));
@@ -71,19 +81,17 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignFindByIdWhenNotExists() {
-        final long CAMPAIGN_WRONG_ID = 100_000_000L;
         final Optional<Campaign> result = campaignDao.findById(CAMPAIGN_WRONG_ID);
         assertThat(result.isEmpty(), is(true));
     }
 
     @Test
     public void verifyCampaignUpdateWithSameId() {
-        final long CAMPAIGN_ID = 500L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_3")
-                .ksName("ks_name_3")
-                .status(Status.ACTIVE)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         createCampaign(campaign);
@@ -92,9 +100,9 @@ class CampaignDaoIntegrationTest {
 
         final Campaign campaignToUpdate = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_33")
-                .ksName("ks_name_33")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_UPDATED_NAME)
+                .ksName(CAMPAIGN_UPDATED_KS_NAME)
+                .status(CAMPAIGN_UPDATED_STATUS)
                 .build();
 
         final long numberOfUpdatedRecords = campaignDao.update(campaignToUpdate);
@@ -104,15 +112,15 @@ class CampaignDaoIntegrationTest {
 
         assertThat(campaignBeforeUpdate.getId(), is(campaignAfterUpdate.getId()));
 
-        assertThat(campaignBeforeUpdate.getName(), is("name_3"));
-        assertThat(campaignBeforeUpdate.getKsName(), is("ks_name_3"));
-        assertThat(campaignBeforeUpdate.getStatus(), is(Status.ACTIVE));
+        assertThat(campaignBeforeUpdate.getName(), is(CAMPAIGN_NAME));
+        assertThat(campaignBeforeUpdate.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaignBeforeUpdate.getStatus(), is(CAMPAIGN_STATUS));
         assertThat(campaignBeforeUpdate.getCreateDate(), is(notNullValue()));
         assertThat(campaignBeforeUpdate.getLastUpdated(), is(notNullValue()));
 
-        assertThat(campaignAfterUpdate.getName(), is("name_33"));
-        assertThat(campaignAfterUpdate.getKsName(), is("ks_name_33"));
-        assertThat(campaignAfterUpdate.getStatus(), is(Status.PAUSED));
+        assertThat(campaignAfterUpdate.getName(), is(CAMPAIGN_UPDATED_NAME));
+        assertThat(campaignAfterUpdate.getKsName(), is(CAMPAIGN_UPDATED_KS_NAME));
+        assertThat(campaignAfterUpdate.getStatus(), is(CAMPAIGN_UPDATED_STATUS));
         assertThat(campaignAfterUpdate.getCreateDate(), is(notNullValue()));
         assertThat(campaignAfterUpdate.getLastUpdated(), is(notNullValue()));
     }
@@ -120,18 +128,17 @@ class CampaignDaoIntegrationTest {
     @Test
     public void verifyCampaignWhenLastUpdateFieldUpdated() {
         final LocalDateTime createdLastUpdatedTime = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(4).withNano(0);
-        final long CAMPAIGN_ID = 500L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_4")
-                .ksName("ks_name_4")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
         final Campaign campaignToUpdate = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_44")
-                .ksName("ks_name_44")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_UPDATED_NAME)
+                .ksName(CAMPAIGN_UPDATED_KS_NAME)
+                .status(CAMPAIGN_UPDATED_STATUS)
                 .lastUpdated(createdLastUpdatedTime)
                 .build();
 
@@ -149,12 +156,11 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignCreateDateWhenCreateCampaign() {
-        final long CAMPAIGN_ID = 228L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_5")
-                .ksName("ks_name_5")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         createCampaign(campaign);
@@ -165,12 +171,11 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignUpdateWhenNotExists() {
-        final long CAMPAIGN_WRONG_ID = 999_999_999L;
         final Campaign campaignToUpdate = Campaign.builder()
                 .id(CAMPAIGN_WRONG_ID)
-                .name("name")
-                .ksName("ks_name")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         final long numberOfUpdatedRecords = campaignDao.update(campaignToUpdate);
@@ -180,12 +185,11 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignDeleteById() {
-        final long CAMPAIGN_ID = 322L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_6")
-                .ksName("ks_name_6")
-                .status(Status.ACTIVE)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         createCampaign(campaign);
@@ -196,12 +200,11 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyCampaignMarkedAsDeletedWhenDeleteById() {
-        final long CAMPAIGN_ID = 110L;
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
-                .name("name_7")
-                .ksName("ks_name_7")
-                .status(Status.PAUSED)
+                .name(CAMPAIGN_NAME)
+                .ksName(CAMPAIGN_KS_NAME)
+                .status(CAMPAIGN_STATUS)
                 .build();
 
         createCampaign(campaign);
@@ -209,7 +212,7 @@ class CampaignDaoIntegrationTest {
 
         final Campaign campaignRecordAfterDelete = campaignDao.findById(CAMPAIGN_ID).get();
 
-        assertThat(campaignRecordAfterDelete.getStatus(), is(Status.DELETED));
+        assertThat(campaignRecordAfterDelete.getStatus(), is(CAMPAIGN_DELETED_STATUS));
     }
 
     private long createCampaign(Campaign campaign) {
