@@ -59,7 +59,6 @@ public class CampaignDaoImpl implements CampaignDao {
                 .set(CampaignTable.TABLE.name, campaign.getName())
                 .set(CampaignTable.TABLE.ksName, campaign.getKsName())
                 .set(CampaignTable.TABLE.status, campaign.getStatus().name())
-                .set(CampaignTable.TABLE.lastUpdated, campaign.getLastUpdated())
                 .where(CampaignTable.TABLE.id.eq(campaign.getId()))
                 .execute();
     }

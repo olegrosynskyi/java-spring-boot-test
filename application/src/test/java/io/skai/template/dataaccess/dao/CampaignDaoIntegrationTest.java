@@ -139,7 +139,7 @@ class CampaignDaoIntegrationTest {
 
         assertThat(campaignRecordBeforeUpdate.getLastUpdated(), is(notNullValue()));
 
-        campaignDao.update(campaignToUpdate);
+        updateCampaign(campaignToUpdate);
         final Campaign campaignRecordAfterUpdate = campaignDao.findById(campaignId).get();
 
         assertThat(campaignRecordAfterUpdate.getLastUpdated(), is(notNullValue()));
@@ -210,6 +210,15 @@ class CampaignDaoIntegrationTest {
 
     private long createCampaign(Campaign campaign) {
         return campaignDao.create(campaign);
+    }
+
+    private long updateCampaign(Campaign campaign) {
+        return dslContext.update(CampaignTable.TABLE)
+                .set(CampaignTable.TABLE.name, campaign.getName())
+                .set(CampaignTable.TABLE.ksName, campaign.getKsName())
+                .set(CampaignTable.TABLE.status, campaign.getStatus().name())
+                .set(CampaignTable.TABLE.lastUpdated, campaign.getLastUpdated())
+                .execute();
     }
 
 }
