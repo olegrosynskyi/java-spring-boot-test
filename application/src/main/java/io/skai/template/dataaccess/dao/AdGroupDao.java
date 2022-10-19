@@ -15,6 +15,6 @@ public interface AdGroupDao {
 
     long deleteById(long id);
 
-    Optional<List<AdGroup>> fetchNotDeletedByKsName(String ksName);
+    List<AdGroup> fetchNotDeletedByKsName(String ksName);
 
 }

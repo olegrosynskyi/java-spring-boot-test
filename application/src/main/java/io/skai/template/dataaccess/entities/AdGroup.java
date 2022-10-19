@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class AdGroup {
 
     long id;
+    long campaignId;
     Campaign campaign;
     String name;
     Status status;

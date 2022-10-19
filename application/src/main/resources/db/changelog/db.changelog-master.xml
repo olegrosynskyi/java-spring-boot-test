@@ -57,8 +57,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="campaign_id" type="BIGINT">
-                <constraints nullable="false" foreignKeyName="campaign_id_fk" referencedTableName="campaign"
-                             referencedColumnNames="id"/>
+                <constraints nullable="false"/>
             </column>
             <column name="name" type="VARCHAR(255)">
                 <constraints nullable="false"/>
