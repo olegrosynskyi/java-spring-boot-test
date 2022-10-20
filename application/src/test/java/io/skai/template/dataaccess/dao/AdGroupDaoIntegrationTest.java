@@ -226,7 +226,7 @@ class AdGroupDaoIntegrationTest {
 
     @Test
     public void verifyAdGroupWhenUpdatedWithWrongId() {
-        final LocalDateTime timeToCheckUpdated = LocalDateTime.now(ZoneOffset.UTC).plusMinutes(4).withNano(0);
+        final LocalDateTime timeToCheckUpdated = LocalDateTime.now(ZoneOffset.UTC).withNano(0);
         final Campaign campaign = Campaign.builder()
                 .id(CAMPAIGN_ID)
                 .name(CAMPAIGN_NAME)
@@ -241,6 +241,8 @@ class AdGroupDaoIntegrationTest {
                 .campaignId(CAMPAIGN_ID)
                 .name(AD_GROUP_NAME)
                 .status(AD_GROUP_STATUS)
+                .createDate(timeToCheckUpdated)
+                .lastUpdated(timeToCheckUpdated)
                 .build();
 
         final AdGroup adGroupToUpdate = AdGroup.builder()
@@ -248,8 +250,6 @@ class AdGroupDaoIntegrationTest {
                 .campaignId(CAMPAIGN_ID)
                 .name(AD_GROUP_NAME_UPDATED)
                 .status(AD_GROUP_STATUS_UPDATED)
-                .createDate(timeToCheckUpdated)
-                .lastUpdated(timeToCheckUpdated)
                 .build();
 
         createAdGroupWithIdAndDate(adGroup);
@@ -272,8 +272,8 @@ class AdGroupDaoIntegrationTest {
         assertThat(adGroupAfterUpdate.get().getCampaign(), is(nullValue()));
         assertThat(adGroupAfterUpdate.get().getCampaignId(), is(0L));
 
-        assertThat(adGroupAfterUpdate.get().getCreateDate(), not(equalTo(timeToCheckUpdated)));
-        assertThat(adGroupAfterUpdate.get().getLastUpdated(), not(equalTo(timeToCheckUpdated)));
+        assertThat(adGroupAfterUpdate.get().getCreateDate(), is(timeToCheckUpdated));
+        assertThat(adGroupAfterUpdate.get().getLastUpdated(), is(timeToCheckUpdated));
     }
 
     @Test
