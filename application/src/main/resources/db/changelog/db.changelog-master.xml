@@ -46,4 +46,32 @@
         </createTable>
     </changeSet>
 
+    <changeSet id="ad_groups table" author="olegrosynskyi">
+        <preConditions>
+            <not>
+                <tableExists tableName="ad_groups"/>
+            </not>
+        </preConditions>
+        <createTable tableName="ad_groups">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="campaign_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updated" type="TIMESTAMP" defaultValueComputed="NOW() ON UPDATE NOW()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
