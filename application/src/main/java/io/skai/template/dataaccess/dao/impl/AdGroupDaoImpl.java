@@ -26,7 +26,7 @@ public class AdGroupDaoImpl implements AdGroupDao {
     @Override
     public long create(AdGroup adGroup) {
         log.info("Create ad group: {}", adGroup);
-        return dslContext.insertInto(
+        dslContext.insertInto(
                 AdGroupTable.TABLE,
                 AdGroupTable.TABLE.name,
                 AdGroupTable.TABLE.status,
@@ -36,6 +36,7 @@ public class AdGroupDaoImpl implements AdGroupDao {
                 adGroup.getStatus().name(),
                 adGroup.getCampaignId()
         ).execute();
+        return dslContext.lastID().longValue();
     }
 
     @Override
@@ -62,6 +63,7 @@ public class AdGroupDaoImpl implements AdGroupDao {
         log.info("Deleting ad group in DB by id : {}", id);
         return dslContext.update(AdGroupTable.TABLE)
                 .set(AdGroupTable.TABLE.status, Status.DELETED.name())
+                .where(AdGroupTable.TABLE.id.eq(id))
                 .execute();
     }
 

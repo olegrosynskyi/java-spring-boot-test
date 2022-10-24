@@ -45,6 +45,7 @@ project.libraries = [
             exclude group: 'io.dropwizard', module: 'dropwizard-auth'
             exclude group: 'org.json', module: 'json'
         },
+        kenshoo_open_platform        : 'com.kenshoo:open-platform:6.0.437',
         logback_encoder              : 'net.logstash.logback:logstash-logback-encoder:7.2',
         jaxb                         : 'javax.xml.bind:jaxb-api:2.3.1',
         commons_lang3                : 'org.apache.commons:commons-lang3',
