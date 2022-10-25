@@ -11,15 +11,16 @@ import java.time.LocalDateTime;
 @Builder
 public class AdGroup implements OpenPlatformDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     long id;
-    @JsonProperty("campaign_id")
     Long campaignId;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Campaign campaign;
     String name;
     Status status;
-    @JsonProperty("create_date")
+    @JsonProperty(value = "create_date", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime createDate;
-    @JsonProperty("last_updated")
+    @JsonProperty(value = "last_updated", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime lastUpdated;
 
 }

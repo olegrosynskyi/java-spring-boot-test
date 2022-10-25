@@ -11,14 +11,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Campaign implements OpenPlatformDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     long id;
     String name;
     @JsonProperty("ks_name")
     String ksName;
     Status status;
-    @JsonProperty("create_date")
+    @JsonProperty(value = "create_date", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime createDate;
-    @JsonProperty("last_updated")
+    @JsonProperty(value = "last_updated", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime lastUpdated;
 
 }

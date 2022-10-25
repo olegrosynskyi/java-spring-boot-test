@@ -35,7 +35,7 @@ subprojects {
         violationRules {
             rule {
                 limit {
-                    minimum = 0.38
+                    minimum = 0.20
                 }
             }
 

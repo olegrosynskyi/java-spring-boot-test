@@ -66,8 +66,8 @@ class CampaignDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
-        final Optional<Campaign> result = campaignDao.findById(CAMPAIGN_ID);
+        final long campaignId = createCampaignWithId(campaign);
+        final Optional<Campaign> result = campaignDao.findById(campaignId);
 
         assertThat(result.isPresent(), is(true));
 
@@ -94,19 +94,19 @@ class CampaignDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
+        final long campaignId = createCampaignWithId(campaign);
 
-        final Campaign campaignBeforeUpdate = campaignDao.findById(CAMPAIGN_ID).get();
+        final Campaign campaignBeforeUpdate = campaignDao.findById(campaignId).get();
 
         final Campaign campaignToUpdate = Campaign.builder()
-                .id(CAMPAIGN_ID)
+                .id(campaignId)
                 .name(CAMPAIGN_UPDATED_NAME)
                 .ksName(CAMPAIGN_UPDATED_KS_NAME)
                 .status(CAMPAIGN_UPDATED_STATUS)
                 .build();
 
         final long numberOfUpdatedRecords = campaignDao.update(campaignToUpdate);
-        final Campaign campaignAfterUpdate = campaignDao.findById(CAMPAIGN_ID).get();
+        final Campaign campaignAfterUpdate = campaignDao.findById(campaignId).get();
 
         assertThat(numberOfUpdatedRecords, is(1L));
 
@@ -142,13 +142,13 @@ class CampaignDaoIntegrationTest {
                 .lastUpdated(createdLastUpdatedTime)
                 .build();
 
-        createCampaign(campaign);
-        final Campaign campaignRecordBeforeUpdate = campaignDao.findById(CAMPAIGN_ID).get();
+        final long campaignId = createCampaignWithId(campaign);
+        final Campaign campaignRecordBeforeUpdate = campaignDao.findById(campaignId).get();
 
         assertThat(campaignRecordBeforeUpdate.getLastUpdated(), is(notNullValue()));
 
         updateCampaign(campaignToUpdate);
-        final Campaign campaignRecordAfterUpdate = campaignDao.findById(CAMPAIGN_ID).get();
+        final Campaign campaignRecordAfterUpdate = campaignDao.findById(campaignId).get();
 
         assertThat(campaignRecordAfterUpdate.getLastUpdated(), is(notNullValue()));
         assertThat(campaignRecordAfterUpdate.getLastUpdated(), not(equalTo(campaignRecordBeforeUpdate.getLastUpdated())));
@@ -163,8 +163,8 @@ class CampaignDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
-        final Campaign campaignRecord = campaignDao.findById(CAMPAIGN_ID).get();
+        final long campaignId = createCampaignWithId(campaign);
+        final Campaign campaignRecord = campaignDao.findById(campaignId).get();
 
         assertThat(campaignRecord.getCreateDate(), is(notNullValue()));
     }
@@ -192,8 +192,8 @@ class CampaignDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
-        final long numberOfUpdatedRecords = campaignDao.deleteById(CAMPAIGN_ID);
+        final long campaignId = createCampaignWithId(campaign);
+        final long numberOfUpdatedRecords = campaignDao.deleteById(campaignId);
 
         assertThat(numberOfUpdatedRecords, is(1L));
     }
@@ -207,16 +207,30 @@ class CampaignDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
-        campaignDao.deleteById(CAMPAIGN_ID);
+        final long campaignId = createCampaignWithId(campaign);
+        campaignDao.deleteById(campaignId);
 
-        final Campaign campaignRecordAfterDelete = campaignDao.findById(CAMPAIGN_ID).get();
+        final Campaign campaignRecordAfterDelete = campaignDao.findById(campaignId).get();
 
         assertThat(campaignRecordAfterDelete.getStatus(), is(CAMPAIGN_DELETED_STATUS));
     }
 
     private long createCampaign(Campaign campaign) {
         return campaignDao.create(campaign);
+    }
+
+    private long createCampaignWithId(Campaign campaign) {
+        dslContext.insertInto(
+                CampaignTable.TABLE,
+                CampaignTable.TABLE.name,
+                CampaignTable.TABLE.ksName,
+                CampaignTable.TABLE.status
+        ).values(
+                campaign.getName(),
+                campaign.getKsName(),
+                campaign.getStatus().name()
+        ).execute();
+        return dslContext.lastID().longValue();
     }
 
     private long updateCampaign(Campaign campaign) {
