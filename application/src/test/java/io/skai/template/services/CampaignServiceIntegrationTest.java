@@ -1,47 +1,51 @@
 package io.skai.template.services;
 
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
-import io.skai.template.Application;
+import io.skai.template.dataaccess.dao.CampaignDao;
 import io.skai.template.dataaccess.entities.Campaign;
 import io.skai.template.dataaccess.entities.FieldValidationException;
 import io.skai.template.dataaccess.entities.Status;
-import io.skai.template.dataaccess.table.CampaignTable;
-import org.jooq.DSLContext;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ActiveProfiles("test")
-@SpringBootTest(classes = Application.class)
+@ExtendWith(MockitoExtension.class)
 class CampaignServiceIntegrationTest {
 
     private static final long CAMPAIGN_WRONG_ID = 999_999_999L;
+    private static final long CAMPAIGN_ID = 3L;
     private static final String CAMPAIGN_NAME = "CAMPAIGN_NAME_1";
     private static final String CAMPAIGN_KS_NAME = "CAMPAIGN_KS_NAME_1";
     private static final String CAMPAIGN_NAME_TO_UPDATE = "CAMPAIGN_NAME_TO_UPDATE_1";
     private static final String CAMPAIGN_KS_NAME_TO_UPDATE = "CAMPAIGN_KS_NAME_TO_UPDATE_1";
     private static final Status ACTIVE = Status.ACTIVE;
     private static final Status PAUSED_TO_UPDATE = Status.PAUSED;
-    private static final Status DELETED = Status.DELETED;
 
-    @Autowired
-    private CampaignService campaignService;
-    @Autowired
-    private DSLContext dslContext;
+    @InjectMocks
+    private CampaignServiceImpl campaignService;
 
-    @BeforeEach
-    public void init() {
-        dslContext.truncate(CampaignTable.TABLE).execute();
-    }
+    @Mock
+    private CampaignDao campaignDao;
+
+    @Captor
+    private ArgumentCaptor<Campaign> campaignArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Long> campaignIdArgumentCaptor;
 
     @Test
     public void verifyWhenCampaignCreated() {
@@ -51,25 +55,38 @@ class CampaignServiceIntegrationTest {
                 .status(ACTIVE)
                 .build();
 
+        when(campaignDao.create(campaign)).thenReturn(CAMPAIGN_ID);
+
         final long campaignId = campaignService.create(campaign);
 
-        assertThat(campaignId, is(1L));
+        verify(campaignDao).create(campaignArgumentCaptor.capture());
+
+        final Campaign campaignArguments = campaignArgumentCaptor.getValue();
+
+        assertThat(campaignId, is(CAMPAIGN_ID));
+        assertThat(campaignArguments.getName(), is(CAMPAIGN_NAME));
+        assertThat(campaignArguments.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaignArguments.getStatus(), is(ACTIVE));
     }
 
     @Test
     public void verifyWhenCampaignFoundById() {
         final Campaign campaign = Campaign.builder()
+                .id(CAMPAIGN_ID)
                 .name(CAMPAIGN_NAME)
                 .ksName(CAMPAIGN_KS_NAME)
                 .status(ACTIVE)
+                .createDate(LocalDateTime.now())
+                .lastUpdated(LocalDateTime.now())
                 .build();
 
-        final long campaignId = campaignService.create(campaign);
-        final Campaign foundCampaign = campaignService.findById(campaignId);
+        when(campaignDao.findById(CAMPAIGN_ID)).thenReturn(Optional.ofNullable(campaign));
+
+        final Campaign foundCampaign = campaignService.findById(CAMPAIGN_ID);
 
         assertThat(foundCampaign, is(notNullValue()));
 
-        assertThat(campaignId, is(foundCampaign.getId()));
+        assertThat(foundCampaign.getId(), is(CAMPAIGN_ID));
         assertThat(foundCampaign.getName(), is(CAMPAIGN_NAME));
         assertThat(foundCampaign.getKsName(), is(CAMPAIGN_KS_NAME));
         assertThat(foundCampaign.getStatus(), is(ACTIVE));
@@ -79,11 +96,18 @@ class CampaignServiceIntegrationTest {
 
     @Test
     public void verifyWhenCampaignNotFoundById() {
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
+                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new com.kenshoo.openplatform.apimodel.errors.FieldError("id", "Campaign by id not found or invalid.")))
+        );
+
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
                 () -> campaignService.findById(CAMPAIGN_WRONG_ID)
         );
 
+        verify(campaignDao).findById(campaignIdArgumentCaptor.capture());
+
+        assertThat(campaignIdArgumentCaptor.getValue(), is(CAMPAIGN_WRONG_ID));
         assertThat(exception.getEntityId(), is(CAMPAIGN_WRONG_ID));
         assertThat(exception.getFieldErrors(), is(List.of(new FieldError("id", "Campaign by id not found or invalid."))));
     }
@@ -91,6 +115,7 @@ class CampaignServiceIntegrationTest {
     @Test
     public void verifyWhenCampaignUpdated() {
         final Campaign campaign = Campaign.builder()
+                .id(CAMPAIGN_ID)
                 .name(CAMPAIGN_NAME)
                 .ksName(CAMPAIGN_KS_NAME)
                 .status(ACTIVE)
@@ -102,25 +127,16 @@ class CampaignServiceIntegrationTest {
                 .status(PAUSED_TO_UPDATE)
                 .build();
 
-        final long campaignId = campaignService.create(campaign);
-        final Campaign campaignBeforeUpdate = campaignService.findById(campaignId);
+        when(campaignDao.findById(CAMPAIGN_ID)).thenReturn(Optional.ofNullable(campaign));
+        campaignService.update(CAMPAIGN_ID, campaignDataToUpdate);
 
-        final long campaignIdFromUpdatedCampaign = campaignService.update(campaignId, campaignDataToUpdate);
-        final Campaign campaignAfterUpdate = campaignService.findById(campaignIdFromUpdatedCampaign);
+        verify(campaignDao).update(campaignArgumentCaptor.capture());
 
-        assertThat(campaignId, is(campaignIdFromUpdatedCampaign));
+        final Campaign campaignCaptorValue = campaignArgumentCaptor.getValue();
 
-        assertThat(campaignBeforeUpdate.getName(), is(CAMPAIGN_NAME));
-        assertThat(campaignBeforeUpdate.getKsName(), is(CAMPAIGN_KS_NAME));
-        assertThat(campaignBeforeUpdate.getStatus(), is(ACTIVE));
-        assertThat(campaignBeforeUpdate.getCreateDate(), is(notNullValue()));
-        assertThat(campaignBeforeUpdate.getLastUpdated(), is(notNullValue()));
-
-        assertThat(campaignAfterUpdate.getName(), is(CAMPAIGN_NAME_TO_UPDATE));
-        assertThat(campaignAfterUpdate.getKsName(), is(CAMPAIGN_KS_NAME_TO_UPDATE));
-        assertThat(campaignAfterUpdate.getStatus(), is(PAUSED_TO_UPDATE));
-        assertThat(campaignAfterUpdate.getCreateDate(), is(notNullValue()));
-        assertThat(campaignAfterUpdate.getLastUpdated(), is(notNullValue()));
+        assertThat(campaignCaptorValue.getName(), is(CAMPAIGN_NAME_TO_UPDATE));
+        assertThat(campaignCaptorValue.getKsName(), is(CAMPAIGN_KS_NAME_TO_UPDATE));
+        assertThat(campaignCaptorValue.getStatus(), is(PAUSED_TO_UPDATE));
     }
 
     @Test
@@ -130,6 +146,10 @@ class CampaignServiceIntegrationTest {
                 .ksName(CAMPAIGN_KS_NAME_TO_UPDATE)
                 .status(PAUSED_TO_UPDATE)
                 .build();
+
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
+                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new FieldError("id", "Campaign not found or invalid.")))
+        );
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
@@ -143,21 +163,29 @@ class CampaignServiceIntegrationTest {
     @Test
     public void verifyWhenCampaignChangeStatusToDeletedById() {
         final Campaign campaign = Campaign.builder()
+                .id(CAMPAIGN_ID)
                 .name(CAMPAIGN_NAME)
                 .ksName(CAMPAIGN_KS_NAME)
                 .status(ACTIVE)
                 .build();
 
-        final long campaignId = campaignService.create(campaign);
-        final long campaignIdDeleted = campaignService.deleteById(campaignId);
-        final Campaign campaignAfterDelete = campaignService.findById(campaignIdDeleted);
+        when(campaignDao.findById(CAMPAIGN_ID)).thenReturn(Optional.ofNullable(campaign));
 
-        assertThat(campaignIdDeleted, is(campaignId));
-        assertThat(campaignAfterDelete.getStatus(), is(DELETED));
+        campaignService.deleteById(CAMPAIGN_ID);
+
+        verify(campaignDao).deleteById(campaignIdArgumentCaptor.capture());
+
+        final Long campaignIdForDelete = campaignIdArgumentCaptor.getValue();
+
+        assertThat(campaignIdForDelete, is(CAMPAIGN_ID));
     }
 
     @Test
     public void verifyWhenCampaignNotChangeStatusToDeletedById() {
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
+                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new FieldError("id", "Campaign not found or invalid.")))
+        );
+
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
                 () -> campaignService.deleteById(CAMPAIGN_WRONG_ID)
