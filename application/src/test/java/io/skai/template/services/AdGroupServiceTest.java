@@ -9,7 +9,10 @@ import io.skai.template.dataaccess.entities.FieldValidationException;
 import io.skai.template.dataaccess.entities.Status;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -22,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class AdGroupServiceIntegrationTest {
+class AdGroupServiceTest {
 
     private static final Long CAMPAIGN_WRONG_ID = 999_999_999L;
     private static final Long CAMPAIGN_ID = 22L;
@@ -48,9 +51,6 @@ class AdGroupServiceIntegrationTest {
     private ArgumentCaptor<AdGroup> adGroupArgumentCaptor;
     @Captor
     private ArgumentCaptor<Long> adGroupIdArgumentCaptor;
-
-    @Captor
-    private ArgumentCaptor<FieldValidationException> fieldValidationExceptionArgumentCaptor;
 
     @Test
     public void verifyWhenAdGroupCreated() {
@@ -89,19 +89,13 @@ class AdGroupServiceIntegrationTest {
                 .status(AD_GROUP_ACTIVE)
                 .build();
 
-        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
-                new FieldValidationException(null, List.of(new FieldError("campaign_id", "AdGroup not created because 'campaign_id' not found or invalid")))
-        );
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
                 () -> adGroupService.create(adGroup)
         );
 
-        verify(campaignDao).findById(adGroupIdArgumentCaptor.capture());
-        final Long adGroupWrongId = adGroupIdArgumentCaptor.getValue();
-
-        assertThat(adGroupWrongId, is(CAMPAIGN_WRONG_ID));
         assertThat(exception.getEntityId(), is(nullValue()));
         assertThat(exception.getFieldErrors(), is(List.of(new FieldError("campaign_id", "AdGroup not created because 'campaign_id' not found or invalid"))));
     }
@@ -133,9 +127,7 @@ class AdGroupServiceIntegrationTest {
 
     @Test
     public void verifyWhenAdGroupNotFoundById() {
-        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenThrow(
-                new FieldValidationException(AD_GROUP_WRONG_ID, List.of(new FieldError("id", "AdGroup by id not found or invalid.")))
-        );
+        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
@@ -161,8 +153,8 @@ class AdGroupServiceIntegrationTest {
                 .status(AD_GROUP_PAUSED)
                 .build();
 
-        when(adGroupDao.findById(anyLong())).thenReturn(Optional.ofNullable(adGroup));
-        adGroupService.update(anyLong(), adGroupDataToUpdate);
+        when(adGroupDao.findById(AD_GROUP_ID)).thenReturn(Optional.ofNullable(adGroup));
+        adGroupService.update(AD_GROUP_ID, adGroupDataToUpdate);
 
         verify(adGroupDao).update(adGroupArgumentCaptor.capture());
 
@@ -179,9 +171,7 @@ class AdGroupServiceIntegrationTest {
                 .status(AD_GROUP_PAUSED)
                 .build();
 
-        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenThrow(
-                new FieldValidationException(AD_GROUP_WRONG_ID, List.of(new FieldError("id", "AdGroup not found or invalid.")))
-        );
+        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
@@ -215,9 +205,7 @@ class AdGroupServiceIntegrationTest {
 
     @Test
     public void verifyWhenAdGroupNotChangeStatusToDeletedById() {
-        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenThrow(
-                new FieldValidationException(AD_GROUP_WRONG_ID, List.of(new FieldError("id", "AdGroup not found or invalid.")))
-        );
+        when(adGroupDao.findById(AD_GROUP_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,

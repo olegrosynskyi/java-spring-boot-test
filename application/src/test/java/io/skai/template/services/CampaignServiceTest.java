@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CampaignServiceIntegrationTest {
+class CampaignServiceTest {
 
     private static final long CAMPAIGN_WRONG_ID = 999_999_999L;
     private static final long CAMPAIGN_ID = 3L;
@@ -96,18 +96,13 @@ class CampaignServiceIntegrationTest {
 
     @Test
     public void verifyWhenCampaignNotFoundById() {
-        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
-                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new com.kenshoo.openplatform.apimodel.errors.FieldError("id", "Campaign by id not found or invalid.")))
-        );
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
                 () -> campaignService.findById(CAMPAIGN_WRONG_ID)
         );
 
-        verify(campaignDao).findById(campaignIdArgumentCaptor.capture());
-
-        assertThat(campaignIdArgumentCaptor.getValue(), is(CAMPAIGN_WRONG_ID));
         assertThat(exception.getEntityId(), is(CAMPAIGN_WRONG_ID));
         assertThat(exception.getFieldErrors(), is(List.of(new FieldError("id", "Campaign by id not found or invalid."))));
     }
@@ -147,9 +142,7 @@ class CampaignServiceIntegrationTest {
                 .status(PAUSED_TO_UPDATE)
                 .build();
 
-        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
-                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new FieldError("id", "Campaign not found or invalid.")))
-        );
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
@@ -182,9 +175,7 @@ class CampaignServiceIntegrationTest {
 
     @Test
     public void verifyWhenCampaignNotChangeStatusToDeletedById() {
-        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenThrow(
-                new FieldValidationException(CAMPAIGN_WRONG_ID, List.of(new FieldError("id", "Campaign not found or invalid.")))
-        );
+        when(campaignDao.findById(CAMPAIGN_WRONG_ID)).thenReturn(Optional.empty());
 
         final FieldValidationException exception = assertThrows(
                 FieldValidationException.class,
