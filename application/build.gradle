@@ -25,6 +25,7 @@ dependencies {
     implementation libraries.dropwizard_metrics_core
     implementation libraries.awsProvider
     implementation libraries.jaxb
+    implementation libraries.kenshoo_open_platform
     compileOnly libraries.lombok
     developmentOnly libraries.spring_boot_devtools
     runtimeOnly libraries.mysql_connector_java

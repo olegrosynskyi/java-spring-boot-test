@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @SpringBootTest(classes = Application.class)
@@ -68,32 +70,35 @@ class AdGroupDaoIntegrationTest {
                 .status(CAMPAIGN_STATUS)
                 .build();
 
-        createCampaign(campaign);
+        long campaignId = createCampaign(campaign);
 
         final AdGroup adGroup = AdGroup.builder()
-                .campaignId(CAMPAIGN_ID)
+                .campaignId(campaignId)
                 .name(AD_GROUP_NAME)
                 .status(AD_GROUP_STATUS)
                 .build();
 
-        final long numberOfRecords = createAdGroup(adGroup);
+        final long adGroupId = createAdGroup(adGroup);
 
-        assertThat(numberOfRecords, is(1L));
+        assertThat(adGroupId, is(1L));
     }
 
     @Test
-    public void verifyWhenAdGroupCreationWithoutCampaign() {
+    public void verifyWhenAdGroupNotCreateWithoutCampaign() {
         final AdGroup adGroup = AdGroup.builder()
                 .id(AD_GROUP_ID)
                 .name(AD_GROUP_NAME)
                 .status(AD_GROUP_STATUS)
                 .build();
 
-        createAdGroupWithIdAndDate(adGroup);
-        Optional<AdGroup> result = adGroupDao.findById(AD_GROUP_ID);
+        assertThrows(
+                DataIntegrityViolationException.class,
+                () -> createAdGroupWithIdAndDate(adGroup)
+        );
 
-        assertThat(result.isPresent(), is(true));
-        assertThat(result.get().getCampaignId(), is(0L));
+        final Optional<AdGroup> result = adGroupDao.findById(AD_GROUP_ID);
+
+        assertThat(result.isPresent(), is(false));
     }
 
     @Test
@@ -122,7 +127,7 @@ class AdGroupDaoIntegrationTest {
 
         assertThat(result.get().getId(), is(AD_GROUP_ID));
         assertThat(result.get().getCampaign(), is(nullValue()));
-        assertThat(result.get().getCampaignId(), is(0L));
+        assertThat(result.get().getCampaignId(), is(nullValue()));
         assertThat(result.get().getName(), is(AD_GROUP_NAME));
         assertThat(result.get().getStatus(), is(AD_GROUP_STATUS));
 
@@ -172,14 +177,14 @@ class AdGroupDaoIntegrationTest {
         assertThat(adGroupBeforeUpdate.get().getName(), is(AD_GROUP_NAME));
         assertThat(adGroupBeforeUpdate.get().getStatus(), is(AD_GROUP_STATUS));
         assertThat(adGroupBeforeUpdate.get().getCampaign(), is(nullValue()));
-        assertThat(adGroupBeforeUpdate.get().getCampaignId(), is(0L));
+        assertThat(adGroupBeforeUpdate.get().getCampaignId(), is(nullValue()));
         assertThat(adGroupBeforeUpdate.get().getCreateDate(), is(notNullValue()));
         assertThat(adGroupBeforeUpdate.get().getLastUpdated(), is(notNullValue()));
 
         assertThat(adGroupAfterUpdate.get().getName(), is(AD_GROUP_NAME_UPDATED));
         assertThat(adGroupAfterUpdate.get().getStatus(), is(AD_GROUP_STATUS_UPDATED));
         assertThat(adGroupAfterUpdate.get().getCampaign(), is(nullValue()));
-        assertThat(adGroupAfterUpdate.get().getCampaignId(), is(0L));
+        assertThat(adGroupAfterUpdate.get().getCampaignId(), is(nullValue()));
         assertThat(adGroupAfterUpdate.get().getCreateDate(), is(notNullValue()));
         assertThat(adGroupAfterUpdate.get().getLastUpdated(), is(notNullValue()));
     }
@@ -263,14 +268,14 @@ class AdGroupDaoIntegrationTest {
         assertThat(adGroupBeforeUpdate.get().getName(), is(AD_GROUP_NAME));
         assertThat(adGroupBeforeUpdate.get().getStatus(), is(AD_GROUP_STATUS));
         assertThat(adGroupBeforeUpdate.get().getCampaign(), is(nullValue()));
-        assertThat(adGroupBeforeUpdate.get().getCampaignId(), is(0L));
+        assertThat(adGroupBeforeUpdate.get().getCampaignId(), is(nullValue()));
         assertThat(adGroupBeforeUpdate.get().getCreateDate(), is(notNullValue()));
         assertThat(adGroupBeforeUpdate.get().getLastUpdated(), is(notNullValue()));
 
         assertThat(adGroupAfterUpdate.get().getName(), is(AD_GROUP_NAME));
         assertThat(adGroupAfterUpdate.get().getStatus(), is(AD_GROUP_STATUS));
         assertThat(adGroupAfterUpdate.get().getCampaign(), is(nullValue()));
-        assertThat(adGroupAfterUpdate.get().getCampaignId(), is(0L));
+        assertThat(adGroupAfterUpdate.get().getCampaignId(), is(nullValue()));
 
         assertThat(adGroupAfterUpdate.get().getCreateDate(), is(timeToCheckUpdated));
         assertThat(adGroupAfterUpdate.get().getLastUpdated(), is(timeToCheckUpdated));
@@ -453,7 +458,7 @@ class AdGroupDaoIntegrationTest {
     }
 
     private long createCampaign(Campaign campaign) {
-        return dslContext.insertInto(
+        dslContext.insertInto(
                 CampaignTable.TABLE,
                 CampaignTable.TABLE.id,
                 CampaignTable.TABLE.name,
@@ -465,6 +470,7 @@ class AdGroupDaoIntegrationTest {
                 campaign.getKsName(),
                 campaign.getStatus().name()
         ).execute();
+        return dslContext.lastID().longValue();
     }
 
 }

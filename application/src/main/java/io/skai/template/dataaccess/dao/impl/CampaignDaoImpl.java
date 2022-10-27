@@ -21,18 +21,17 @@ public class CampaignDaoImpl implements CampaignDao {
     @Override
     public long create(Campaign campaign) {
         log.info("Create campaign : {}", campaign);
-        return dslContext.insertInto(
+        dslContext.insertInto(
                 CampaignTable.TABLE,
-                CampaignTable.TABLE.id,
                 CampaignTable.TABLE.name,
                 CampaignTable.TABLE.ksName,
                 CampaignTable.TABLE.status
         ).values(
-                campaign.getId(),
                 campaign.getName(),
                 campaign.getKsName(),
                 campaign.getStatus().name()
         ).execute();
+        return dslContext.lastID().longValue();
     }
 
     @Override
