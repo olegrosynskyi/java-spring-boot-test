@@ -28,6 +28,17 @@ spring:
         time-between-eviction-runs: 5m
 server:
   shutdown: graceful
+  tomcat:
+    relaxed-query-chars:
+      - "["
+      - "]"
+      - "{"
+      - "}"
+    relaxed-path-chars:
+      - "["
+      - "]"
+      - "{"
+      - "}"
 management:
   info:
     java:

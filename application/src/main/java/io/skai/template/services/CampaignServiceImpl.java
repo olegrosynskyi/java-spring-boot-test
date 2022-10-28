@@ -3,6 +3,8 @@ package io.skai.template.services;
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.dao.CampaignDao;
 import io.skai.template.dataaccess.entities.Campaign;
+import io.skai.template.dataaccess.entities.CampaignFetch;
+import io.skai.template.dataaccess.entities.CampaignQuery;
 import io.skai.template.dataaccess.entities.FieldValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,11 @@ public class CampaignServiceImpl implements CampaignService {
         campaignDao.deleteById(id);
 
         return id;
+    }
+
+    @Override
+    public List<CampaignFetch> fetchCampaigns(CampaignQuery campaignQuery) {
+        return campaignDao.fetchCampaigns(campaignQuery);
     }
 
 

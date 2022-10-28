@@ -4,6 +4,8 @@ import com.kenshoo.openplatform.apimodel.ApiResponse;
 import com.kenshoo.openplatform.apimodel.WriteResponseDto;
 import com.kenshoo.openplatform.apimodel.enums.StatusResponse;
 import io.skai.template.dataaccess.entities.Campaign;
+import io.skai.template.dataaccess.entities.CampaignFetch;
+import io.skai.template.dataaccess.entities.CampaignQuery;
 import io.skai.template.services.CampaignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,17 @@ public class CampaignController {
     public ApiResponse<WriteResponseDto<Long>> markCampaignAsDeleted(@PathVariable long id) {
         final long campaignId = campaignService.deleteById(id);
         return responseCampaign(campaignId);
+    }
+
+    @GetMapping("/")
+    public ApiResponse<CampaignFetch> fetchAllCampaigns(CampaignQuery campaignQuery) {
+//        ApiFetchRequest<QueryFilter<List<String>>> fetch
+        final List<CampaignFetch> fetchedCampaigns = campaignService.fetchCampaigns(campaignQuery);
+
+        return new ApiResponse.Builder<CampaignFetch>()
+                .withStatus(StatusResponse.SUCCESS)
+                .withEntities(fetchedCampaigns)
+                .build();
     }
 
     private ApiResponse<WriteResponseDto<Long>> responseCampaign(long id) {
