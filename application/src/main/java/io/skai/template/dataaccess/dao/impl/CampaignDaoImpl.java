@@ -1,22 +1,25 @@
 package io.skai.template.dataaccess.dao.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
 import com.kenshoo.openplatform.apimodel.QueryFilter;
 import io.skai.template.dataaccess.dao.CampaignDao;
 import io.skai.template.dataaccess.entities.*;
 import io.skai.template.dataaccess.table.AdGroupTable;
 import io.skai.template.dataaccess.table.CampaignTable;
+import io.skai.template.services.FieldMapperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.RecordMapper;
 import org.jooq.TableField;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Repository
 @Slf4j
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 public class CampaignDaoImpl implements CampaignDao {
 
     private final DSLContext dslContext;
+    private final FieldMapperService fieldMapperService;
 
     @Override
     public long create(Campaign campaign) {
@@ -79,106 +83,69 @@ public class CampaignDaoImpl implements CampaignDao {
     }
 
     @Override
-    public List<CampaignFetch> fetchCampaigns(CampaignQuery campaignQuery) {
-        final List<QueryFilter<String>> queryFilters = parseFilterQuery(campaignQuery.filters());
-        final List<String> fields = campaignQuery.fields();
-        final long limit = campaignQuery.limit();
+    public List<CampaignFetch> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+        log.info("Fetch campaign with fetch request: {}", apiFetchRequest);
 
-        final List<TableField<Record, ?>> tableFields = campaignMatchFields(fields);
-        tableFields.addAll(List.of(
-                AdGroupTable.TABLE.id,
-                AdGroupTable.TABLE.campaignId,
-                AdGroupTable.TABLE.name,
-                AdGroupTable.TABLE.status,
-                AdGroupTable.TABLE.createDate,
-                AdGroupTable.TABLE.lastUpdated
-        ));
+        final List<QueryFilter<String>> queryFilters = apiFetchRequest.getFilters();
+        final List<String> fetchFields = apiFetchRequest.getFields();
+        final long limit = apiFetchRequest.getLimit();
 
-        List<Campaign> campaigns = dslContext.select(tableFields)
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.getAllAdGroupFields();
+        final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
+
+        final Campaign.CampaignBuilder campaignBuilder = Campaign.builder();
+        final AdGroup.AdGroupBuilder adGroupBuilder = AdGroup.builder();
+
+        final Stream<Record> campaignsStream = dslContext.select(selectFields)
                 .from(CampaignTable.TABLE)
                 .leftJoin(AdGroupTable.TABLE)
                 .on(CampaignTable.TABLE.id.eq(AdGroupTable.TABLE.campaignId))
-                .limit(limit)
-                .fetch(fetchCampaignsRecordMapper(fields));
+                .where(AdGroupTable.TABLE.campaignId.isNotNull())
+                .stream();
 
-        return getFetchResponseResult(campaigns);
+        return getFetchResponseResult(campaignsStream, limit, campaignFields, adGroupFields, campaignBuilder, adGroupBuilder);
     }
 
-    private List<CampaignFetch> getFetchResponseResult(List<Campaign> campaigns) {
-        final Map<Long, List<Campaign>> groupCampaigns = campaigns.stream().collect(Collectors.groupingBy(Campaign::getId));
+    private List<CampaignFetch> getFetchResponseResult(Stream<Record> campaignRecordsStream,
+                                                       long limit,
+                                                       List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields,
+                                                       List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields,
+                                                       Campaign.CampaignBuilder campaignBuilder,
+                                                       AdGroup.AdGroupBuilder adGroupBuilder) {
+        final Map<Long, List<Record>> groupOfCampaignRecords = campaignRecordsStream.collect(Collectors.groupingBy(record -> record.get(CampaignTable.TABLE.id)));
 
-        return groupCampaigns.entrySet().stream()
-                .map(entry ->
-                        CampaignFetch.builder()
-                                .campaign(entry.getValue().get(0))
-                                .adGroups(entry.getValue().stream()
-                                        .map(Campaign::getAdGroup)
-                                        .filter(Objects::nonNull)
-                                        .collect(Collectors.toList())
-                                ).build()
+        return groupOfCampaignRecords.entrySet().stream()
+                .limit(limit)
+                .map(entry -> {
+                            entry.getValue()
+                                    .stream()
+                                    .limit(1)
+                                    .forEach(rec -> campaignFields.forEach(field -> field.getValueApplier().apply(campaignBuilder, rec)));
+
+                            final List<AdGroup> adGroups = entry.getValue()
+                                    .stream()
+                                    .map(rec -> {
+                                        adGroupFields.forEach(field -> field.getValueApplier().apply(adGroupBuilder, rec));
+                                        return adGroupBuilder.build();
+                                    }).toList();
+
+                            final Campaign campaign = campaignBuilder.build();
+
+                            return CampaignFetch.builder()
+                                    .campaign(campaign)
+                                    .adGroups(adGroups)
+                                    .build();
+                        }
                 ).toList();
     }
 
-    private RecordMapper<Record, Campaign> fetchCampaignsRecordMapper(List<String> fields) {
-        Campaign.CampaignBuilder builder = Campaign.builder();
-        return rec -> {
-            if (fields.contains("id")) {
-                builder.id(rec.get(CampaignTable.TABLE.id));
-            }
-            if (fields.contains("name")) {
-                builder.name(rec.get(CampaignTable.TABLE.name));
-            }
-            if (fields.contains("ksName")) {
-                builder.ksName(rec.get(CampaignTable.TABLE.ksName));
-            }
-            if (fields.contains("status")) {
-                builder.status(Status.valueOf(rec.get(CampaignTable.TABLE.status)));
-            }
-            if (fields.contains("createDate")) {
-                builder.createDate(rec.get(CampaignTable.TABLE.createDate));
-            }
-            if (fields.contains("lastUpdated")) {
-                builder.lastUpdated(rec.get(CampaignTable.TABLE.lastUpdated));
-            }
-
-            AdGroup.AdGroupBuilder adGroupBuilder = AdGroup.builder();
-            if (rec.field(AdGroupTable.TABLE.id) != null && rec.get(AdGroupTable.TABLE.campaignId) != null) {
-                builder.adGroup(adGroupBuilder
-                        .id(rec.get(AdGroupTable.TABLE.id))
-                        .campaignId(rec.get(AdGroupTable.TABLE.campaignId))
-                        .name(rec.get(AdGroupTable.TABLE.name))
-                        .status(Status.valueOf(rec.get(AdGroupTable.TABLE.status)))
-                        .createDate(rec.get(AdGroupTable.TABLE.createDate))
-                        .lastUpdated(rec.get(AdGroupTable.TABLE.lastUpdated))
-                        .build());
-            } else {
-                builder.adGroup(null);
-            }
-
-            return builder.build();
-        };
-    }
-
-    private List<QueryFilter<String>> parseFilterQuery(String filter) {
-        final ObjectMapper mapper = new ObjectMapper();
-        try {
-            final QueryFilter<String>[] queryFilters = mapper.readValue(filter, QueryFilter[].class);
-            return Arrays.asList(queryFilters);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<TableField<Record, ?>> campaignMatchFields(List<String> fields) {
-        return fields.stream().map(field -> switch (field) {
-            case "id" -> CampaignTable.TABLE.id;
-            case "name" -> CampaignTable.TABLE.name;
-            case "ksName" -> CampaignTable.TABLE.ksName;
-            case "status" -> CampaignTable.TABLE.status;
-            case "createDate" -> CampaignTable.TABLE.createDate;
-            case "lastUpdated" -> CampaignTable.TABLE.lastUpdated;
-            default -> null;
-        }).collect(Collectors.toList());
+    private List<TableField<Record, ?>> getFetchSelectFields(List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields,
+                                                             List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields) {
+        return Stream.of(campaignFields, adGroupFields)
+                .flatMap(Collection::stream)
+                .map(FieldMapper::getDbField)
+                .collect(Collectors.toList());
     }
 
 }

@@ -1,17 +1,24 @@
 package io.skai.template.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
 import com.kenshoo.openplatform.apimodel.ApiResponse;
+import com.kenshoo.openplatform.apimodel.QueryFilter;
 import com.kenshoo.openplatform.apimodel.WriteResponseDto;
 import com.kenshoo.openplatform.apimodel.enums.StatusResponse;
+import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.entities.Campaign;
 import io.skai.template.dataaccess.entities.CampaignFetch;
-import io.skai.template.dataaccess.entities.CampaignQuery;
+import io.skai.template.dataaccess.entities.FetchQuery;
+import io.skai.template.dataaccess.entities.QueryFilterException;
 import io.skai.template.services.CampaignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,9 +62,14 @@ public class CampaignController {
     }
 
     @GetMapping("/")
-    public ApiResponse<CampaignFetch> fetchAllCampaigns(CampaignQuery campaignQuery) {
-//        ApiFetchRequest<QueryFilter<List<String>>> fetch
-        final List<CampaignFetch> fetchedCampaigns = campaignService.fetchCampaigns(campaignQuery);
+    public ApiResponse<CampaignFetch> fetchAllCampaigns(FetchQuery fetchQuery) {
+        final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
+                .withFilters(parseFilterQuery(fetchQuery.filters()))
+                .withFields(fetchQuery.fields())
+                .withLimit(fetchQuery.limit())
+                .build();
+
+        final List<CampaignFetch> fetchedCampaigns = campaignService.fetchCampaigns(apiFetchRequest);
 
         return new ApiResponse.Builder<CampaignFetch>()
                 .withStatus(StatusResponse.SUCCESS)
@@ -75,6 +87,16 @@ public class CampaignController {
                 .withStatus(StatusResponse.SUCCESS)
                 .withEntities(List.of(dto))
                 .build();
+    }
+
+    private static List<QueryFilter<String>> parseFilterQuery(String filter) {
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            final QueryFilter<String>[] queryFilters = mapper.readValue(filter, QueryFilter[].class);
+            return Arrays.asList(queryFilters);
+        } catch (JsonProcessingException e) {
+            throw new QueryFilterException(List.of(new FieldError("filters", "Cannot parse filters query param. Invalid json pattern")));
+        }
     }
 
 }
