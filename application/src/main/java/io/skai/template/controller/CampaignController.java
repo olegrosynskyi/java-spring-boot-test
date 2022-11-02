@@ -9,7 +9,6 @@ import com.kenshoo.openplatform.apimodel.WriteResponseDto;
 import com.kenshoo.openplatform.apimodel.enums.StatusResponse;
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.entities.Campaign;
-import io.skai.template.dataaccess.entities.CampaignFetch;
 import io.skai.template.dataaccess.entities.FetchQuery;
 import io.skai.template.dataaccess.entities.QueryFilterException;
 import io.skai.template.services.CampaignService;
@@ -62,16 +61,16 @@ public class CampaignController {
     }
 
     @GetMapping("/")
-    public ApiResponse<CampaignFetch> fetchAllCampaigns(FetchQuery fetchQuery) {
+    public ApiResponse<Campaign> fetchAllCampaigns(FetchQuery fetchQuery) {
         final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
                 .withFilters(parseFilterQuery(fetchQuery.filters()))
                 .withFields(fetchQuery.fields())
                 .withLimit(fetchQuery.limit())
                 .build();
 
-        final List<CampaignFetch> fetchedCampaigns = campaignService.fetchCampaigns(apiFetchRequest);
+        final List<Campaign> fetchedCampaigns = campaignService.fetchCampaigns(apiFetchRequest);
 
-        return new ApiResponse.Builder<CampaignFetch>()
+        return new ApiResponse.Builder<Campaign>()
                 .withStatus(StatusResponse.SUCCESS)
                 .withEntities(fetchedCampaigns)
                 .build();

@@ -3,7 +3,6 @@ package io.skai.template.dataaccess.dao;
 import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
 import com.kenshoo.openplatform.apimodel.QueryFilter;
 import io.skai.template.dataaccess.entities.Campaign;
-import io.skai.template.dataaccess.entities.CampaignFetch;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +17,6 @@ public interface CampaignDao {
 
     long deleteById(long id);
 
-    List<CampaignFetch> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest);
+    List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest);
 
 }

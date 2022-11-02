@@ -3,7 +3,10 @@ package io.skai.template.dataaccess.dao.impl;
 import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
 import com.kenshoo.openplatform.apimodel.QueryFilter;
 import io.skai.template.dataaccess.dao.CampaignDao;
-import io.skai.template.dataaccess.entities.*;
+import io.skai.template.dataaccess.entities.AdGroup;
+import io.skai.template.dataaccess.entities.Campaign;
+import io.skai.template.dataaccess.entities.FieldMapper;
+import io.skai.template.dataaccess.entities.Status;
 import io.skai.template.dataaccess.table.AdGroupTable;
 import io.skai.template.dataaccess.table.CampaignTable;
 import io.skai.template.services.FieldMapperService;
@@ -14,10 +17,7 @@ import org.jooq.Record;
 import org.jooq.TableField;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,7 +83,7 @@ public class CampaignDaoImpl implements CampaignDao {
     }
 
     @Override
-    public List<CampaignFetch> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
         log.info("Fetch campaign with fetch request: {}", apiFetchRequest);
 
         final List<QueryFilter<String>> queryFilters = apiFetchRequest.getFilters();
@@ -91,51 +91,55 @@ public class CampaignDaoImpl implements CampaignDao {
         final long limit = apiFetchRequest.getLimit();
 
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.getAllAdGroupFields();
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(fetchFields);
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
-
-        final Campaign.CampaignBuilder campaignBuilder = Campaign.builder();
-        final AdGroup.AdGroupBuilder adGroupBuilder = AdGroup.builder();
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
                 .from(CampaignTable.TABLE)
                 .leftJoin(AdGroupTable.TABLE)
                 .on(CampaignTable.TABLE.id.eq(AdGroupTable.TABLE.campaignId))
-                .where(AdGroupTable.TABLE.campaignId.isNotNull())
                 .stream();
 
-        return getFetchResponseResult(campaignsStream, limit, campaignFields, adGroupFields, campaignBuilder, adGroupBuilder);
+        return getFetchResponseResult(campaignsStream, limit, campaignFields, adGroupFields);
     }
 
-    private List<CampaignFetch> getFetchResponseResult(Stream<Record> campaignRecordsStream,
-                                                       long limit,
-                                                       List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields,
-                                                       List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields,
-                                                       Campaign.CampaignBuilder campaignBuilder,
-                                                       AdGroup.AdGroupBuilder adGroupBuilder) {
+    private List<Campaign> getFetchResponseResult(Stream<Record> campaignRecordsStream,
+                                                  long limit,
+                                                  List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields,
+                                                  List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields) {
         final Map<Long, List<Record>> groupOfCampaignRecords = campaignRecordsStream.collect(Collectors.groupingBy(record -> record.get(CampaignTable.TABLE.id)));
 
+        final Campaign.CampaignBuilder campaignBuilder = Campaign.builder();
         return groupOfCampaignRecords.entrySet().stream()
                 .limit(limit)
                 .map(entry -> {
-                            entry.getValue()
-                                    .stream()
-                                    .limit(1)
-                                    .forEach(rec -> campaignFields.forEach(field -> field.getValueApplier().apply(campaignBuilder, rec)));
+
+                            final Record campaignRecord = entry.getValue().get(0);
+                            campaignFields.forEach(field -> field.getValueApplier().apply(campaignBuilder, campaignRecord));
 
                             final List<AdGroup> adGroups = entry.getValue()
                                     .stream()
                                     .map(rec -> {
-                                        adGroupFields.forEach(field -> field.getValueApplier().apply(adGroupBuilder, rec));
+                                        final AdGroup.AdGroupBuilder adGroupBuilder = AdGroup.builder();
+
+                                        if (rec.get(AdGroupTable.TABLE.id) == null) {
+                                            return null;
+                                        }
+
+                                        adGroupFields.forEach(field -> {
+                                            if (rec.get(AdGroupTable.TABLE.status) != null) {
+                                                field.getValueApplier().apply(adGroupBuilder, rec);
+                                            }
+                                        });
+
                                         return adGroupBuilder.build();
-                                    }).toList();
+                                    })
+                                    .filter(Objects::nonNull)
+                                    .toList();
 
-                            final Campaign campaign = campaignBuilder.build();
+                            campaignBuilder.adGroups(adGroups);
 
-                            return CampaignFetch.builder()
-                                    .campaign(campaign)
-                                    .adGroups(adGroups)
-                                    .build();
+                            return campaignBuilder.build();
                         }
                 ).toList();
     }

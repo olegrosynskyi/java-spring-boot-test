@@ -10,6 +10,6 @@ public interface FieldMapperService {
 
     List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFields(List<String> fields);
 
-    List<FieldMapper<?, AdGroup.AdGroupBuilder>> getAllAdGroupFields();
+    List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFields(List<String> fields);
 
 }

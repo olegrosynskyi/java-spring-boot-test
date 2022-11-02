@@ -7,13 +7,13 @@ import org.jooq.TableField;
 import java.util.function.BiFunction;
 
 @Value
-public class FieldMapper<T, B> {
+public class FieldMapper<T, BUILDER> {
 
     String name;
     TableField<Record, T> dbField;
-    BiFunction<B, Record, B> valueApplier;
+    BiFunction<BUILDER, Record, BUILDER> valueApplier;
 
-    public FieldMapper(String name, TableField<Record, T> dbField, BiFunction<B, T, B> valueApplier) {
+    public FieldMapper(String name, TableField<Record, T> dbField, BiFunction<BUILDER, T, BUILDER> valueApplier) {
         this.name = name;
         this.dbField = dbField;
         this.valueApplier = (builder, record) -> valueApplier.apply(builder, record.get(dbField));
