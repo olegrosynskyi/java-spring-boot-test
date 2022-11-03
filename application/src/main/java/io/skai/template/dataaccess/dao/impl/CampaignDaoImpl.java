@@ -17,7 +17,10 @@ import org.jooq.Record;
 import org.jooq.TableField;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,23 +122,16 @@ public class CampaignDaoImpl implements CampaignDao {
 
                             final List<AdGroup> adGroups = entry.getValue()
                                     .stream()
+                                    .filter(rec -> adGroupFields.stream().noneMatch(field -> rec.get(field.getDbField()) == null))
                                     .map(rec -> {
                                         final AdGroup.AdGroupBuilder adGroupBuilder = AdGroup.builder();
 
-                                        if (rec.get(AdGroupTable.TABLE.id) == null) {
-                                            return null;
-                                        }
-
                                         adGroupFields.forEach(field -> {
-                                            if (rec.get(AdGroupTable.TABLE.status) != null) {
-                                                field.getValueApplier().apply(adGroupBuilder, rec);
-                                            }
+                                            field.getValueApplier().apply(adGroupBuilder, rec);
                                         });
 
                                         return adGroupBuilder.build();
-                                    })
-                                    .filter(Objects::nonNull)
-                                    .toList();
+                                    }).toList();
 
                             campaignBuilder.adGroups(adGroups);
 

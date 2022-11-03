@@ -18,7 +18,6 @@ public class AdGroup implements OpenPlatformDto {
     @JsonProperty("campaign_id")
     Long campaignId;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     Campaign campaign;
     String name;
     Status status;
