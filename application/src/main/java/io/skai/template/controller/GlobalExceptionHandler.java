@@ -4,6 +4,7 @@ import com.kenshoo.openplatform.apimodel.ApiResponse;
 import com.kenshoo.openplatform.apimodel.WriteResponseDto;
 import com.kenshoo.openplatform.apimodel.enums.StatusResponse;
 import io.skai.template.dataaccess.entities.FieldValidationException;
+import io.skai.template.dataaccess.entities.QueryFilterException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,4 +30,18 @@ public class GlobalExceptionHandler {
                 .withEntities(List.of(dto))
                 .build();
     }
+
+    @ExceptionHandler({QueryFilterException.class})
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    public ApiResponse<?> invalidQueryFilterException(QueryFilterException e) {
+        final WriteResponseDto<?> dto = new WriteResponseDto.Builder<>()
+                .withErrors(e.getFieldErrors())
+                .build();
+
+        return new ApiResponse.Builder<>()
+                .withStatus(StatusResponse.FAILED)
+                .withEntities(List.of(dto))
+                .build();
+    }
+
 }

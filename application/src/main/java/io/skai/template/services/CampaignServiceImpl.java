@@ -1,5 +1,7 @@
 package io.skai.template.services;
 
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
+import com.kenshoo.openplatform.apimodel.QueryFilter;
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.dao.CampaignDao;
 import io.skai.template.dataaccess.entities.Campaign;
@@ -59,5 +61,9 @@ public class CampaignServiceImpl implements CampaignService {
         return id;
     }
 
+    @Override
+    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+        return campaignDao.fetchCampaigns(apiFetchRequest);
+    }
 
 }
