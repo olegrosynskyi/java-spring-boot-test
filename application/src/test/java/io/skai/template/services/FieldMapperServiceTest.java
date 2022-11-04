@@ -66,9 +66,7 @@ class FieldMapperServiceTest {
         when(record.get(CampaignTable.TABLE.createDate)).thenReturn(CAMPAIGN_CREATE_DATE);
         when(record.get(CampaignTable.TABLE.lastUpdated)).thenReturn(CAMPAIGN_LAST_UPDATED);
 
-        final Campaign.CampaignBuilder builder = Campaign.builder();
-        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final Campaign campaign = builder.build();
+        final Campaign campaign = buildCampaign(campaignFields);
 
         assertThat(campaignFields, hasSize(6));
         assertThat(campaign.getId(), is(CAMPAIGN_ID));
@@ -91,9 +89,7 @@ class FieldMapperServiceTest {
         when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
         when(record.get(CampaignTable.TABLE.name)).thenReturn(CAMPAIGN_NAME);
 
-        final Campaign.CampaignBuilder builder = Campaign.builder();
-        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final Campaign campaign = builder.build();
+        final Campaign campaign = buildCampaign(campaignFields);
 
         assertThat(campaignFields, hasSize(2));
         assertThat(campaignFields.stream().map(FieldMapper::getName).toList(), containsInAnyOrder("id", "name"));
@@ -118,9 +114,7 @@ class FieldMapperServiceTest {
         when(record.get(CampaignTable.TABLE.status)).thenReturn(CAMPAIGN_STATUS_ACTIVE.name());
         when(record.get(CampaignTable.TABLE.lastUpdated)).thenReturn(CAMPAIGN_LAST_UPDATED);
 
-        final Campaign.CampaignBuilder builder = Campaign.builder();
-        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final Campaign campaign = builder.build();
+        final Campaign campaign = buildCampaign(campaignFields);
 
         assertThat(campaignFields, hasSize(4));
         assertThat(campaign.getId(), is(CAMPAIGN_ID));
@@ -143,9 +137,7 @@ class FieldMapperServiceTest {
         when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
         when(record.get(AdGroupTable.TABLE.lastUpdated)).thenReturn(AD_GROUP_LAST_UPDATED);
 
-        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
-        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final AdGroup adGroup = builder.build();
+        final AdGroup adGroup = buildAdGroup(adGroupFields);
 
         assertThat(adGroupFields, hasSize(6));
         assertThat(adGroup.getId(), is(AD_GROUP_ID));
@@ -170,9 +162,7 @@ class FieldMapperServiceTest {
         when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
         when(record.get(AdGroupTable.TABLE.lastUpdated)).thenReturn(AD_GROUP_LAST_UPDATED);
 
-        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
-        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final AdGroup adGroup = builder.build();
+        final AdGroup adGroup = buildAdGroup(adGroupFields);
 
         assertThat(adGroupFields, hasSize(6));
         assertThat(adGroup.getId(), is(AD_GROUP_ID));
@@ -198,9 +188,7 @@ class FieldMapperServiceTest {
         when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
         when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
 
-        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
-        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
-        final AdGroup adGroup = builder.build();
+        final AdGroup adGroup = buildAdGroup(adGroupFields);
 
         assertThat(adGroupFields, hasSize(3));
         assertThat(adGroup.getId(), is(nullValue()));
@@ -210,6 +198,18 @@ class FieldMapperServiceTest {
         assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
         assertThat(adGroup.getLastUpdated(), is(nullValue()));
         assertThat(adGroup.getCampaign(), is(nullValue()));
+    }
+
+    private Campaign buildCampaign(List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields) {
+        final Campaign.CampaignBuilder builder = Campaign.builder();
+        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        return builder.build();
+    }
+
+    private AdGroup buildAdGroup(List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields) {
+        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
+        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        return builder.build();
     }
 
 }
