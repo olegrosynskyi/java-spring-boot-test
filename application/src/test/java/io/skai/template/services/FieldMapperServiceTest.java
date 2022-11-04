@@ -6,13 +6,15 @@ import io.skai.template.dataaccess.entities.FieldMapper;
 import io.skai.template.dataaccess.entities.Status;
 import io.skai.template.dataaccess.table.AdGroupTable;
 import io.skai.template.dataaccess.table.CampaignTable;
+import org.jooq.Record;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -21,28 +23,18 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FieldMapperServiceTest {
 
-    @Mock
-    private FieldMapperServiceImpl fieldMapperService;
-
-    private final List<String> filters = List.of(
-            "id",
-            "name",
-            "status",
-            "lastUpdated",
-            "adGroup.id",
-            "adGroup.campaignId",
-            "adGroup.createDate"
-    );
-
-    private final List<String> anotherSetOfFilterFieldsList = List.of(
-            "ksName",
-            "createDate",
-            "adGroup.name",
-            "adGroup.lastUpdated",
-            "adGroup.status"
-    );
-
-    private final List<String> filtersWithAllFields = List.of(
+    private static final Long CAMPAIGN_ID = 1L;
+    private static final Long AD_GROUP_ID = 1L;
+    private static final String CAMPAIGN_NAME = "campaign name";
+    private static final String AD_GROUP_NAME = "ad group name";
+    private static final String CAMPAIGN_KS_NAME = "campaign ks name";
+    private static final Status CAMPAIGN_STATUS_ACTIVE = Status.ACTIVE;
+    private static final Status AD_GROUP_STATUS_ACTIVE = Status.ACTIVE;
+    private static final LocalDateTime CAMPAIGN_CREATE_DATE = LocalDateTime.now();
+    private static final LocalDateTime AD_GROUP_CREATE_DATE = LocalDateTime.now();
+    private static final LocalDateTime CAMPAIGN_LAST_UPDATED = LocalDateTime.now();
+    private static final LocalDateTime AD_GROUP_LAST_UPDATED = LocalDateTime.now();
+    private static final List<String> filtersWithAllFields = List.of(
             "id",
             "name",
             "ksName",
@@ -57,224 +49,167 @@ class FieldMapperServiceTest {
             "adGroup.lastUpdated"
     );
 
-    private final List<String> filtersWithoutId = List.of(
-            "name",
-            "status",
-            "lastUpdated",
-            "adGroup.id",
-            "adGroup.campaignId",
-            "adGroup.createDate"
-    );
+    @InjectMocks
+    private FieldMapperServiceImpl fieldMapperService;
 
-    private final List<String> emptyFilter = List.of();
-
-    private final List<FieldMapper<?, Campaign.CampaignBuilder>> filteredCampaignFields = List.of(
-            new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value)),
-            new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value)),
-            new FieldMapper<>("status", CampaignTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
-            new FieldMapper<>("lastUpdated", CampaignTable.TABLE.lastUpdated, (builder, value) -> builder.lastUpdated(value))
-    );
-
-    private final List<FieldMapper<?, Campaign.CampaignBuilder>> filteredCampaignWithAnotherFields = List.of(
-            new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value)),
-            new FieldMapper<>("createDate", CampaignTable.TABLE.createDate, (builder, value) -> builder.createDate(value))
-    );
-
-    private final List<FieldMapper<?, Campaign.CampaignBuilder>> filteredCampaignFieldsWithAllFields = List.of(
-            new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value)),
-            new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value)),
-            new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value)),
-            new FieldMapper<>("status", CampaignTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
-            new FieldMapper<>("createDate", CampaignTable.TABLE.createDate, (builder, value) -> builder.createDate(value)),
-            new FieldMapper<>("lastUpdated", CampaignTable.TABLE.lastUpdated, (builder, value) -> builder.lastUpdated(value))
-    );
-
-    private final List<FieldMapper<?, AdGroup.AdGroupBuilder>> filteredAdGroupFields = List.of(
-            new FieldMapper<>("id", AdGroupTable.TABLE.id, (builder, value) -> builder.id(value)),
-            new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value)),
-            new FieldMapper<>("createDate", AdGroupTable.TABLE.createDate, (builder, value) -> builder.createDate(value))
-    );
-
-    private final List<FieldMapper<?, AdGroup.AdGroupBuilder>> filteredAdGroupWithAnotherFields = List.of(
-            new FieldMapper<>("name", AdGroupTable.TABLE.name, (builder, value) -> builder.name(value)),
-            new FieldMapper<>("status", AdGroupTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
-            new FieldMapper<>("lastUpdated", AdGroupTable.TABLE.lastUpdated, (builder, value) -> builder.lastUpdated(value))
-    );
-
-    private final List<FieldMapper<?, AdGroup.AdGroupBuilder>> filteredAdGroupFieldsWithAllFields = List.of(
-            new FieldMapper<>("id", AdGroupTable.TABLE.id, (builder, value) -> builder.id(value)),
-            new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value)),
-            new FieldMapper<>("name", AdGroupTable.TABLE.name, (builder, value) -> builder.name(value)),
-            new FieldMapper<>("status", AdGroupTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
-            new FieldMapper<>("createDate", AdGroupTable.TABLE.createDate, (builder, value) -> builder.createDate(value)),
-            new FieldMapper<>("lastUpdated", AdGroupTable.TABLE.lastUpdated, (builder, value) -> builder.lastUpdated(value))
-    );
+    @Mock
+    private Record record;
 
     @Test
-    public void verifyParseCampaignFields() {
-        when(fieldMapperService.parseCampaignFields(filters)).thenReturn(filteredCampaignFields);
-
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filters);
-
-        assertThat(campaignFields, hasSize(4));
-        assertThat(campaignFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "id", "name", "status", "lastUpdated"
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                CampaignTable.TABLE.id, CampaignTable.TABLE.name, CampaignTable.TABLE.status, CampaignTable.TABLE.lastUpdated
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(), notNullValue(), notNullValue(), notNullValue()
-        ));
-    }
-
-    @Test
-    public void verifyParseCampaignFieldsWithAnotherFields() {
-        when(fieldMapperService.parseCampaignFields(anotherSetOfFilterFieldsList)).thenReturn(filteredCampaignWithAnotherFields);
-
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(anotherSetOfFilterFieldsList);
-
-        assertThat(campaignFields, hasSize(2));
-        assertThat(campaignFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "ksName", "createDate"
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                CampaignTable.TABLE.ksName, CampaignTable.TABLE.createDate
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(), notNullValue()
-        ));
-    }
-
-    @Test
-    public void verifyParseCampaignFieldsWithoutIdWillAddId() {
-        when(fieldMapperService.parseCampaignFields(filtersWithoutId)).thenReturn(filteredCampaignFields);
-        assertThat(filtersWithoutId, not(hasItem("id")));
-
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersWithoutId);
-
-
-        assertThat(campaignFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), hasItem("id"));
-        assertThat(campaignFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), hasItem(CampaignTable.TABLE.id));
-        assertThat(campaignFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), hasItem(notNullValue()));
-    }
-
-    @Test
-    public void verifyParseCampaignFieldsWithAllFields() {
-        when(fieldMapperService.parseCampaignFields(filtersWithAllFields)).thenReturn(filteredCampaignFieldsWithAllFields);
-
+    public void verifyParseCampaignFieldsWhenAllFieldsInFilterList() {
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersWithAllFields);
 
-        assertThat(campaignFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "id", "name", "ksName", "status", "createDate", "lastUpdated"
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                CampaignTable.TABLE.id,
-                CampaignTable.TABLE.name,
-                CampaignTable.TABLE.ksName,
-                CampaignTable.TABLE.status,
-                CampaignTable.TABLE.createDate,
-                CampaignTable.TABLE.lastUpdated
-        ));
-        assertThat(campaignFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue()
-        ));
+        when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
+        when(record.get(CampaignTable.TABLE.name)).thenReturn(CAMPAIGN_NAME);
+        when(record.get(CampaignTable.TABLE.ksName)).thenReturn(CAMPAIGN_KS_NAME);
+        when(record.get(CampaignTable.TABLE.status)).thenReturn(CAMPAIGN_STATUS_ACTIVE.name());
+        when(record.get(CampaignTable.TABLE.createDate)).thenReturn(CAMPAIGN_CREATE_DATE);
+        when(record.get(CampaignTable.TABLE.lastUpdated)).thenReturn(CAMPAIGN_LAST_UPDATED);
+
+        final Campaign.CampaignBuilder builder = Campaign.builder();
+        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final Campaign campaign = builder.build();
+
+        assertThat(campaignFields, hasSize(6));
+        assertThat(campaign.getId(), is(CAMPAIGN_ID));
+        assertThat(campaign.getName(), is(CAMPAIGN_NAME));
+        assertThat(campaign.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaign.getStatus(), is(CAMPAIGN_STATUS_ACTIVE));
+        assertThat(campaign.getCreateDate(), is(CAMPAIGN_CREATE_DATE));
+        assertThat(campaign.getLastUpdated(), is(CAMPAIGN_LAST_UPDATED));
+        assertThat(campaign.getAdGroups(), is(nullValue()));
     }
 
     @Test
-    public void verifyParseAdGroupFields() {
-        when(fieldMapperService.parseAdGroupFields(filters)).thenReturn(filteredAdGroupFields);
+    public void verifyParseCampaignFieldsWillAddIdIfNotExists() {
+        final List<String> filtersForCampaignWithoutId = List.of(
+                "name"
+        );
 
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filters);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersForCampaignWithoutId);
 
-        assertThat(adGroupFields, hasSize(3));
-        assertThat(adGroupFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "id", "campaignId", "createDate"
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                AdGroupTable.TABLE.id, AdGroupTable.TABLE.campaignId, AdGroupTable.TABLE.createDate
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(), notNullValue(), notNullValue()
-        ));
+        when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
+        when(record.get(CampaignTable.TABLE.name)).thenReturn(CAMPAIGN_NAME);
+
+        final Campaign.CampaignBuilder builder = Campaign.builder();
+        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final Campaign campaign = builder.build();
+
+        assertThat(campaignFields, hasSize(2));
+        assertThat(campaignFields.stream().map(FieldMapper::getName).toList(), containsInAnyOrder("id", "name"));
+
+        assertThat(campaign.getId(), is(CAMPAIGN_ID));
+        assertThat(campaign.getName(), is(CAMPAIGN_NAME));
     }
 
     @Test
-    public void verifyParseAdGroupFieldsWithAnotherFields() {
-        when(fieldMapperService.parseAdGroupFields(anotherSetOfFilterFieldsList)).thenReturn(filteredAdGroupWithAnotherFields);
+    public void verifyParseCampaignFieldsWhenFilterContainsOnlySpecificFields() {
+        final List<String> filterFields = List.of(
+                "id",
+                "ksName",
+                "status",
+                "lastUpdated"
+        );
 
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(anotherSetOfFilterFieldsList);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filterFields);
 
-        assertThat(adGroupFields, hasSize(3));
-        assertThat(adGroupFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "name", "status", "lastUpdated"
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                AdGroupTable.TABLE.name, AdGroupTable.TABLE.status, AdGroupTable.TABLE.lastUpdated
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(), notNullValue(), notNullValue()
-        ));
+        when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
+        when(record.get(CampaignTable.TABLE.ksName)).thenReturn(CAMPAIGN_KS_NAME);
+        when(record.get(CampaignTable.TABLE.status)).thenReturn(CAMPAIGN_STATUS_ACTIVE.name());
+        when(record.get(CampaignTable.TABLE.lastUpdated)).thenReturn(CAMPAIGN_LAST_UPDATED);
+
+        final Campaign.CampaignBuilder builder = Campaign.builder();
+        campaignFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final Campaign campaign = builder.build();
+
+        assertThat(campaignFields, hasSize(4));
+        assertThat(campaign.getId(), is(CAMPAIGN_ID));
+        assertThat(campaign.getName(), is(nullValue()));
+        assertThat(campaign.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaign.getStatus(), is(CAMPAIGN_STATUS_ACTIVE));
+        assertThat(campaign.getCreateDate(), is(nullValue()));
+        assertThat(campaign.getLastUpdated(), is(CAMPAIGN_LAST_UPDATED));
+        assertThat(campaign.getAdGroups(), is(nullValue()));
     }
 
     @Test
-    public void verifyParseAdGroupFieldsWithAllFields() {
-        when(fieldMapperService.parseAdGroupFields(filtersWithAllFields)).thenReturn(filteredAdGroupFieldsWithAllFields);
-
+    public void verifyParseAdGroupFieldsWhenAllFieldsInFilterList() {
         final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filtersWithAllFields);
 
-        assertThat(adGroupFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "id", "campaignId", "name", "status", "createDate", "lastUpdated"
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                AdGroupTable.TABLE.id,
-                AdGroupTable.TABLE.campaignId,
-                AdGroupTable.TABLE.name,
-                AdGroupTable.TABLE.status,
-                AdGroupTable.TABLE.createDate,
-                AdGroupTable.TABLE.lastUpdated
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue()
-        ));
+        when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
+        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
+        when(record.get(AdGroupTable.TABLE.name)).thenReturn(AD_GROUP_NAME);
+        when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
+        when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
+        when(record.get(AdGroupTable.TABLE.lastUpdated)).thenReturn(AD_GROUP_LAST_UPDATED);
+
+        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
+        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final AdGroup adGroup = builder.build();
+
+        assertThat(adGroupFields, hasSize(6));
+        assertThat(adGroup.getId(), is(AD_GROUP_ID));
+        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
+        assertThat(adGroup.getName(), is(AD_GROUP_NAME));
+        assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
+        assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
+        assertThat(adGroup.getLastUpdated(), is(AD_GROUP_LAST_UPDATED));
+        assertThat(adGroup.getCampaign(), is(nullValue()));
     }
 
     @Test
-    public void verifyParseAdGroupWhenFilterIsEmpty() {
-        when(fieldMapperService.parseAdGroupFields(emptyFilter)).thenReturn(filteredAdGroupFieldsWithAllFields);
+    public void verifyParseAdGroupFieldsWhenFilterIsEmptyShouldReturnAllAdGroupFields() {
+        final List<String> emptyFilter = List.of();
 
         final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(emptyFilter);
 
+        when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
+        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
+        when(record.get(AdGroupTable.TABLE.name)).thenReturn(AD_GROUP_NAME);
+        when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
+        when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
+        when(record.get(AdGroupTable.TABLE.lastUpdated)).thenReturn(AD_GROUP_LAST_UPDATED);
+
+        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
+        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final AdGroup adGroup = builder.build();
+
         assertThat(adGroupFields, hasSize(6));
-        assertThat(adGroupFields.stream().map(FieldMapper::getName).collect(Collectors.toList()), containsInAnyOrder(
-                "id", "campaignId", "name", "status", "createDate", "lastUpdated"
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getDbField).collect(Collectors.toList()), containsInAnyOrder(
-                AdGroupTable.TABLE.id,
-                AdGroupTable.TABLE.campaignId,
-                AdGroupTable.TABLE.name,
-                AdGroupTable.TABLE.status,
-                AdGroupTable.TABLE.createDate,
-                AdGroupTable.TABLE.lastUpdated
-        ));
-        assertThat(adGroupFields.stream().map(FieldMapper::getValueApplier).collect(Collectors.toList()), containsInAnyOrder(
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue(),
-                notNullValue()
-        ));
+        assertThat(adGroup.getId(), is(AD_GROUP_ID));
+        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
+        assertThat(adGroup.getName(), is(AD_GROUP_NAME));
+        assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
+        assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
+        assertThat(adGroup.getLastUpdated(), is(AD_GROUP_LAST_UPDATED));
+        assertThat(adGroup.getCampaign(), is(nullValue()));
+    }
+
+    @Test
+    public void verifyParseAdGroupFieldsWhenFilterContainsOnlySpecificFields() {
+        final List<String> filterFields = List.of(
+                "adGroup.campaignId",
+                "adGroup.status",
+                "adGroup.createDate"
+        );
+
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filterFields);
+
+        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
+        when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
+        when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
+
+        final AdGroup.AdGroupBuilder builder = AdGroup.builder();
+        adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
+        final AdGroup adGroup = builder.build();
+
+        assertThat(adGroupFields, hasSize(3));
+        assertThat(adGroup.getId(), is(nullValue()));
+        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
+        assertThat(adGroup.getName(), is(nullValue()));
+        assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
+        assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
+        assertThat(adGroup.getLastUpdated(), is(nullValue()));
+        assertThat(adGroup.getCampaign(), is(nullValue()));
     }
 
 }

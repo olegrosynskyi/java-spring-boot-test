@@ -236,89 +236,49 @@ class CampaignDaoIntegrationTest {
 
     @Test
     public void verifyFetchCampaignsWhenDoApiFetchRequest() {
-        final Campaign campaign1 = Campaign.builder()
-                .id(CAMPAIGN_ID)
-                .name(CAMPAIGN_NAME)
-                .ksName(CAMPAIGN_KS_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of(
-                        AdGroup.builder()
-                                .id(AD_GROUP_ID)
-                                .campaignId(CAMPAIGN_ID)
-                                .name(AD_GROUP_NAME)
-                                .status(AD_GROUP_STATUS)
-                                .build(),
-                        AdGroup.builder()
-                                .id(AD_GROUP_ANOTHER_ID)
-                                .campaignId(CAMPAIGN_ID)
-                                .name(AD_GROUP_NAME)
-                                .status(AD_GROUP_STATUS)
-                                .build()
-                )).build();
-        final Campaign campaign1_AfterFilter = Campaign.builder()
-                .id(CAMPAIGN_ID)
-                .name(CAMPAIGN_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of(
-                        AdGroup.builder()
-                                .id(AD_GROUP_ID)
-                                .campaignId(CAMPAIGN_ID)
-                                .build(),
-                        AdGroup.builder()
-                                .id(AD_GROUP_ANOTHER_ID)
-                                .campaignId(CAMPAIGN_ID)
-                                .build()
-                )).build();
-
-        final Campaign campaign2 = Campaign.builder()
-                .id(CAMPAIGN_ANOTHER_ID)
-                .name(CAMPAIGN_NAME)
-                .ksName(CAMPAIGN_KS_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of(
-                        AdGroup.builder()
-                                .id(AD_GROUP_ONE_MORE_ID)
-                                .campaignId(CAMPAIGN_ANOTHER_ID)
-                                .name(AD_GROUP_NAME)
-                                .status(AD_GROUP_STATUS)
-                                .build()
-                )).build();
-        final Campaign campaign2_AfterFilter = Campaign.builder()
-                .id(CAMPAIGN_ANOTHER_ID)
-                .name(CAMPAIGN_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of(
-                        AdGroup.builder()
-                                .id(AD_GROUP_ONE_MORE_ID)
-                                .campaignId(CAMPAIGN_ANOTHER_ID)
-                                .build()
-                )).build();
-
-        final Campaign campaign3 = Campaign.builder()
-                .id(CAMPAIGN_ONE_MORE_ID)
-                .name(CAMPAIGN_NAME)
-                .ksName(CAMPAIGN_KS_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of())
-                .build();
-        final Campaign campaign3_AfterFilter = Campaign.builder()
-                .id(CAMPAIGN_ONE_MORE_ID)
-                .name(CAMPAIGN_NAME)
-                .status(CAMPAIGN_STATUS)
-                .adGroups(List.of())
-                .build();
-
         final List<Campaign> campaignsForCreate = List.of(
-                campaign1,
-                campaign2,
-                campaign3
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ONE_MORE_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of())
+                        .build()
         );
 
-        campaignsForCreate.forEach(campaign -> {
-            createCampaignWithAddedId(campaign);
-            campaign.getAdGroups().forEach(this::createAdGroupWithId);
-        });
-
+        createCampaignsWithAdGroups(campaignsForCreate);
 
         final List<QueryFilter<String>> queryFilters = List.of(
                 new QueryFilter.Builder<String>()
@@ -338,11 +298,37 @@ class CampaignDaoIntegrationTest {
 
         assertThat(campaigns.size(), is(API_FETCH_REQUEST_LIMIT));
         assertThat(campaigns, containsInAnyOrder(
-                campaign1_AfterFilter,
-                campaign2_AfterFilter,
-                campaign3_AfterFilter
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ONE_MORE_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of())
+                        .build()
         ));
-
     }
 
     private long createCampaign(Campaign campaign) {
@@ -393,6 +379,13 @@ class CampaignDaoIntegrationTest {
         ).execute();
 
         return dslContext.lastID().longValue();
+    }
+
+    private void createCampaignsWithAdGroups(List<Campaign> campaigns) {
+        campaigns.forEach(campaign -> {
+            createCampaignWithAddedId(campaign);
+            campaign.getAdGroups().forEach(this::createAdGroupWithId);
+        });
     }
 
     private long updateCampaign(Campaign campaign) {
