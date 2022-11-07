@@ -329,6 +329,8 @@ class CampaignDaoIntegrationTest {
                         .adGroups(List.of())
                         .build()
         ));
+
+
     }
 
     private long createCampaign(Campaign campaign) {

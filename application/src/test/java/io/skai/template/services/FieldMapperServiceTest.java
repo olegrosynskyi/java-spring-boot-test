@@ -156,48 +156,66 @@ class FieldMapperServiceTest {
         final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(emptyFilter);
 
         when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
-        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
-        when(record.get(AdGroupTable.TABLE.name)).thenReturn(AD_GROUP_NAME);
-        when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
-        when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
-        when(record.get(AdGroupTable.TABLE.lastUpdated)).thenReturn(AD_GROUP_LAST_UPDATED);
 
         final AdGroup adGroup = buildAdGroup(adGroupFields);
 
-        assertThat(adGroupFields, hasSize(6));
+        assertThat(adGroupFields, hasSize(1));
         assertThat(adGroup.getId(), is(AD_GROUP_ID));
-        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
-        assertThat(adGroup.getName(), is(AD_GROUP_NAME));
-        assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
-        assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
-        assertThat(adGroup.getLastUpdated(), is(AD_GROUP_LAST_UPDATED));
-        assertThat(adGroup.getCampaign(), is(nullValue()));
     }
 
     @Test
     public void verifyParseAdGroupFieldsWhenFilterContainsOnlySpecificFields() {
         final List<String> filterFields = List.of(
-                "adGroup.campaignId",
-                "adGroup.status",
-                "adGroup.createDate"
+                "campaignId",
+                "status",
+                "createDate"
         );
 
         final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filterFields);
 
+        when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
         when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
         when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
         when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
 
         final AdGroup adGroup = buildAdGroup(adGroupFields);
 
-        assertThat(adGroupFields, hasSize(3));
-        assertThat(adGroup.getId(), is(nullValue()));
+        assertThat(adGroupFields, hasSize(4));
+        assertThat(adGroup.getId(), is(AD_GROUP_ID));
         assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
         assertThat(adGroup.getName(), is(nullValue()));
         assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
         assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
         assertThat(adGroup.getLastUpdated(), is(nullValue()));
         assertThat(adGroup.getCampaign(), is(nullValue()));
+    }
+
+    @Test
+    public void verifyParseAdGroupFieldsWhenFilterContainsCampaignPrefix() {
+        final List<String> filterFields = List.of(
+                "id",
+                "campaignId",
+                "status",
+                "createDate",
+                "campaign.id",
+                "campaign.name",
+                "campaign.status"
+        );
+
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filterFields);
+
+        when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
+        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
+        when(record.get(AdGroupTable.TABLE.status)).thenReturn(AD_GROUP_STATUS_ACTIVE.name());
+        when(record.get(AdGroupTable.TABLE.createDate)).thenReturn(AD_GROUP_CREATE_DATE);
+
+        final AdGroup adGroup = buildAdGroup(adGroupFields);
+
+        assertThat(adGroupFields, hasSize(4));
+        assertThat(adGroup.getId(), is(AD_GROUP_ID));
+        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
+        assertThat(adGroup.getStatus(), is(AD_GROUP_STATUS_ACTIVE));
+        assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
     }
 
     private Campaign buildCampaign(List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields) {

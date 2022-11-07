@@ -1,5 +1,7 @@
 package io.skai.template.dataaccess.dao;
 
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
+import com.kenshoo.openplatform.apimodel.QueryFilter;
 import io.skai.template.dataaccess.entities.AdGroup;
 
 import java.util.List;
@@ -16,5 +18,7 @@ public interface AdGroupDao {
     long deleteById(long id);
 
     List<AdGroup> fetchNotDeletedByKsName(String ksName);
+
+    List<AdGroup> fetchAdGroups(ApiFetchRequest<QueryFilter<String>> apiFetchRequest);
 
 }

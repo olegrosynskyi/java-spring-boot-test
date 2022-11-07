@@ -1,5 +1,7 @@
 package io.skai.template.services;
 
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
+import com.kenshoo.openplatform.apimodel.QueryFilter;
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.dao.AdGroupDao;
 import io.skai.template.dataaccess.dao.CampaignDao;
@@ -66,6 +68,11 @@ public class AdGroupServiceImpl implements AdGroupService {
         adGroupDao.deleteById(id);
 
         return id;
+    }
+
+    @Override
+    public List<AdGroup> fetchAdGroups(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+        return adGroupDao.fetchAdGroups(apiFetchRequest);
     }
 
 }
