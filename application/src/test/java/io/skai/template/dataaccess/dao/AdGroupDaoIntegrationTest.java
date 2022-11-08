@@ -61,7 +61,7 @@ class AdGroupDaoIntegrationTest {
     private static final String QUERY_FIELD = "name";
     private static final FilterOperator FILTER_OPERATOR_EQUALS = FilterOperator.EQUALS;
     private static final List<String> API_FETCH_REQUEST_FIELDS = List.of("id", "campaignId", "status", "campaign.id", "campaign.name");
-    private static final int API_FETCH_REQUEST_LIMIT = 4;
+    private static final int API_FETCH_REQUEST_LIMIT = 3;
 
     @Autowired
     private AdGroupDao adGroupDao;
@@ -535,10 +535,6 @@ class AdGroupDaoIntegrationTest {
                                 .name(CAMPAIGN_NAME)
                                 .build()
                         )
-                        .build(),
-                AdGroup.builder()
-                        .id(AD_GROUP_ID_WITHOUT_RELATIONS)
-                        .status(AD_GROUP_STATUS)
                         .build()
         ));
     }

@@ -212,8 +212,7 @@ class CampaignDaoIntegrationTest {
 
         final long campaignId = createCampaignWithId(campaign);
         final long numberOfUpdatedRecords = campaignDao.deleteById(campaignId);
-        System.out.println(campaignId);
-        System.out.println(numberOfUpdatedRecords);
+
         assertThat(numberOfUpdatedRecords, is(1L));
     }
 
@@ -329,8 +328,6 @@ class CampaignDaoIntegrationTest {
                         .adGroups(List.of())
                         .build()
         ));
-
-
     }
 
     private long createCampaign(Campaign campaign) {

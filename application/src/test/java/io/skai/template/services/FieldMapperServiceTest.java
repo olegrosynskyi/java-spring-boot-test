@@ -14,7 +14,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -34,7 +37,7 @@ class FieldMapperServiceTest {
     private static final LocalDateTime AD_GROUP_CREATE_DATE = LocalDateTime.now();
     private static final LocalDateTime CAMPAIGN_LAST_UPDATED = LocalDateTime.now();
     private static final LocalDateTime AD_GROUP_LAST_UPDATED = LocalDateTime.now();
-    private static final List<String> filtersWithAllFields = List.of(
+    private static final List<String> filtersWithAllFieldsCampaign = List.of(
             "id",
             "name",
             "ksName",
@@ -49,6 +52,21 @@ class FieldMapperServiceTest {
             "adGroup.lastUpdated"
     );
 
+    private static final List<String> filtersWithAllAdGroupFields = List.of(
+            "id",
+            "campaignId",
+            "name",
+            "status",
+            "createDate",
+            "lastUpdated",
+            "campaign.id",
+            "campaign.name",
+            "campaign.ksName",
+            "campaign.status",
+            "campaign.createDate",
+            "campaign.lastUpdated"
+    );
+
     @InjectMocks
     private FieldMapperServiceImpl fieldMapperService;
 
@@ -57,7 +75,7 @@ class FieldMapperServiceTest {
 
     @Test
     public void verifyParseCampaignFieldsWhenAllFieldsInFilterList() {
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersWithAllFields);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersWithAllFieldsCampaign);
 
         when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
         when(record.get(CampaignTable.TABLE.name)).thenReturn(CAMPAIGN_NAME);
@@ -84,7 +102,7 @@ class FieldMapperServiceTest {
                 "name"
         );
 
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filtersForCampaignWithoutId);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(getFieldsWithoutPrefix(addSpecificQueryId(filtersForCampaignWithoutId, null), "campaign.", "adGroup."));
 
         when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
         when(record.get(CampaignTable.TABLE.name)).thenReturn(CAMPAIGN_NAME);
@@ -128,7 +146,7 @@ class FieldMapperServiceTest {
 
     @Test
     public void verifyParseAdGroupFieldsWhenAllFieldsInFilterList() {
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filtersWithAllFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(getFieldsWithoutPrefix(addSpecificQueryId(filtersWithAllAdGroupFields, null), "campaign.", "adGroup."));
 
         when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
         when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
@@ -153,7 +171,7 @@ class FieldMapperServiceTest {
     public void verifyParseAdGroupFieldsWhenFilterIsEmptyShouldReturnAllAdGroupFields() {
         final List<String> emptyFilter = List.of();
 
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(emptyFilter);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(getFieldsWithoutPrefix(addSpecificQueryId(emptyFilter, null), "campaign.", "adGroup."));
 
         when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
 
@@ -171,7 +189,7 @@ class FieldMapperServiceTest {
                 "createDate"
         );
 
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(filterFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(getFieldsWithoutPrefix(addSpecificQueryId(filterFields, null), "campaign.", "adGroup."));
 
         when(record.get(AdGroupTable.TABLE.id)).thenReturn(AD_GROUP_ID);
         when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
@@ -188,6 +206,30 @@ class FieldMapperServiceTest {
         assertThat(adGroup.getCreateDate(), is(AD_GROUP_CREATE_DATE));
         assertThat(adGroup.getLastUpdated(), is(nullValue()));
         assertThat(adGroup.getCampaign(), is(nullValue()));
+    }
+
+    @Test
+    public void verifyParseCampaignFieldsWhenFilterContainsAdGroupPrefix() {
+        final List<String> filterFields = List.of(
+                "id",
+                "ksName",
+                "status",
+                "adGroup.id",
+                "adGroup.campaignId",
+                "adGroup.status"
+        );
+
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(filterFields);
+
+        when(record.get(CampaignTable.TABLE.id)).thenReturn(CAMPAIGN_ID);
+        when(record.get(CampaignTable.TABLE.ksName)).thenReturn(CAMPAIGN_KS_NAME);
+        when(record.get(CampaignTable.TABLE.status)).thenReturn(CAMPAIGN_STATUS_ACTIVE.name());
+
+        final Campaign campaign = buildCampaign(campaignFields);
+
+        assertThat(campaign.getId(), is(CAMPAIGN_ID));
+        assertThat(campaign.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaign.getStatus(), is(CAMPAIGN_STATUS_ACTIVE));
     }
 
     @Test
@@ -228,6 +270,24 @@ class FieldMapperServiceTest {
         final AdGroup.AdGroupBuilder builder = AdGroup.builder();
         adGroupFields.forEach(field -> field.getValueApplier().apply(builder, record));
         return builder.build();
+    }
+
+    private List<String> getFieldsWithPrefix(List<String> fields, String prefix) {
+        return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
+    }
+
+    private List<String> getFieldsWithoutPrefix(List<String> fields, String... prefix) {
+        return fields.stream().filter(field -> !field.startsWith(prefix[0]) && !field.startsWith(prefix[1])).toList();
+    }
+
+    private List<String> addSpecificQueryId(List<String> fields, String prefix) {
+        final Set<String> filterFields = new HashSet<>(fields);
+        final String id = "id";
+        filterFields.add(id);
+        if (prefix != null) {
+            filterFields.add(prefix + id);
+        }
+        return new ArrayList<>(filterFields);
     }
 
 }

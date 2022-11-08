@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service("fieldMapperService")
 @Slf4j
@@ -42,52 +40,16 @@ public class FieldMapperServiceImpl implements FieldMapperService {
 
     @Override
     public List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFields(List<String> fields) {
-        final boolean isAdGroupPrefix = fields.stream().anyMatch(field -> field.startsWith(AD_GROUP_PREFIX));
-
-        final List<String> filterFields = (isAdGroupPrefix)
-                ? addId(fields.stream()
-                .filter(field -> !field.startsWith(AD_GROUP_PREFIX))
-                .toList())
-                : addId(fields.stream()
-                .filter(field -> field.startsWith(CAMPAIGN_PREFIX))
-                .map(filed -> filed.substring(CAMPAIGN_PREFIX.length()))
-                .toList());
-
-        return (isContainsAnyPrefix(fields))
-                ? CAMPAIGN_FIELDS.stream()
-                .filter(adGroupFields -> filterFields.contains(adGroupFields.getName()))
-                .toList()
-                : CAMPAIGN_FIELDS.stream()
-                .filter(adGroupFields -> addId(fields).contains(adGroupFields.getName()))
+        return CAMPAIGN_FIELDS.stream()
+                .filter(campaignField -> fields.contains(campaignField.getName()))
                 .toList();
     }
 
     @Override
     public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFields(List<String> fields) {
-        final boolean isCampaignPrefix = fields.stream().anyMatch(field -> field.startsWith(CAMPAIGN_PREFIX));
-
-        final List<String> filterFields = (isCampaignPrefix)
-                ? addId(fields.stream().filter(field -> !field.startsWith(CAMPAIGN_PREFIX)).toList())
-                : addId(fields.stream().filter(field -> field.startsWith(AD_GROUP_PREFIX)).map(filed -> filed.substring(AD_GROUP_PREFIX.length())).toList());
-
-        return (isContainsAnyPrefix(fields))
-                ? AD_CROUP_FIELDS.stream()
-                .filter(adGroupFields -> filterFields.contains(adGroupFields.getName()))
-                .toList()
-                : AD_CROUP_FIELDS.stream()
-                .filter(adGroupFields -> addId(fields).contains(adGroupFields.getName()))
+        return AD_CROUP_FIELDS.stream()
+                .filter(adGroupField -> fields.contains(adGroupField.getName()))
                 .toList();
-    }
-
-    private boolean isContainsAnyPrefix(List<String> fields) {
-        return fields.stream().anyMatch(field -> field.startsWith(CAMPAIGN_PREFIX) || field.startsWith(AD_GROUP_PREFIX));
-
-    }
-
-    private List<String> addId(List<String> filterFields) {
-        return filterFields.contains("id")
-                ? filterFields
-                : Stream.of(filterFields, List.of("id")).flatMap(Collection::stream).toList();
     }
 
 }

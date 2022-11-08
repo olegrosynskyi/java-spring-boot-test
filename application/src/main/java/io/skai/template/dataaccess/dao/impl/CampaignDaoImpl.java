@@ -17,10 +17,7 @@ import org.jooq.Record;
 import org.jooq.TableField;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,8 +90,9 @@ public class CampaignDaoImpl implements CampaignDao {
         final List<String> fetchFields = apiFetchRequest.getFields();
         final long limit = apiFetchRequest.getLimit();
 
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(fetchFields);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(getFieldsWithoutPrefix(addSpecificQueryId(fetchFields, null), "campaign.", "adGroup."));
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(getFieldsWithPrefix(addSpecificQueryId(fetchFields, "adGroup."), "adGroup."));
+
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
@@ -129,7 +127,6 @@ public class CampaignDaoImpl implements CampaignDao {
                                         adGroupFields.forEach(field -> {
                                             field.getValueApplier().apply(adGroupBuilder, rec);
                                         });
-
                                         return adGroupBuilder.build();
                                     }).toList();
 
@@ -146,6 +143,24 @@ public class CampaignDaoImpl implements CampaignDao {
                 .flatMap(Collection::stream)
                 .map(FieldMapper::getDbField)
                 .collect(Collectors.toList());
+    }
+
+    private List<String> getFieldsWithPrefix(List<String> fields, String prefix) {
+        return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
+    }
+
+    private List<String> getFieldsWithoutPrefix(List<String> fields, String... prefix) {
+        return fields.stream().filter(field -> !field.startsWith(prefix[0]) && !field.startsWith(prefix[1])).toList();
+    }
+
+    private List<String> addSpecificQueryId(List<String> fields, String prefix) {
+        final Set<String> filterFields = new HashSet<>(fields);
+        final String id = "id";
+        filterFields.add(id);
+        if (prefix != null) {
+            filterFields.add(prefix + id);
+        }
+        return new ArrayList<>(filterFields);
     }
 
 }

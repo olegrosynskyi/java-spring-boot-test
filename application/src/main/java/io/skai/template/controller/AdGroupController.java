@@ -61,7 +61,7 @@ public class AdGroupController {
     }
 
     @GetMapping("/")
-    public ApiResponse<AdGroup> fetchAllCampaigns(FetchQuery fetchQuery) {
+    public ApiResponse<AdGroup> fetchAllAdGroups(FetchQuery fetchQuery) {
         final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
                 .withFilters(parseFilterQuery(fetchQuery.filters()))
                 .withFields(fetchQuery.fields())
