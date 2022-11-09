@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service("fieldMapperService")
 @Slf4j
@@ -40,16 +43,52 @@ public class FieldMapperServiceImpl implements FieldMapperService {
 
     @Override
     public List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFields(List<String> fields) {
-        return CAMPAIGN_FIELDS.stream()
-                .filter(campaignField -> fields.contains(campaignField.getName()))
-                .toList();
+        final List<String> filterFields = getFieldsWithoutPrefix(addSpecificQueryId(fields, null), CAMPAIGN_PREFIX, AD_GROUP_PREFIX);
+        return getCampaignFields(filterFields);
+    }
+
+    @Override
+    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(addSpecificQueryId(fields, AD_GROUP_PREFIX), AD_GROUP_PREFIX);
+        return getAdGroupFields(filterFields);
     }
 
     @Override
     public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFields(List<String> fields) {
-        return AD_CROUP_FIELDS.stream()
-                .filter(adGroupField -> fields.contains(adGroupField.getName()))
-                .toList();
+        final List<String> filterFields = getFieldsWithoutPrefix(addSpecificQueryId(fields, null), CAMPAIGN_PREFIX, AD_GROUP_PREFIX);
+        return getAdGroupFields(filterFields);
+    }
+
+    @Override
+    public List<FieldMapper<?, Campaign.CampaignBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(addSpecificQueryId(fields, CAMPAIGN_PREFIX), CAMPAIGN_PREFIX);
+        return getCampaignFields(filterFields);
+    }
+
+    private List<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignFields(List<String> fields) {
+        return CAMPAIGN_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
+    }
+
+    private List<FieldMapper<?, AdGroup.AdGroupBuilder>> getAdGroupFields(List<String> fields) {
+        return AD_CROUP_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
+    }
+
+    private List<String> getFieldsWithPrefix(List<String> fields, String prefix) {
+        return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
+    }
+
+    private List<String> getFieldsWithoutPrefix(List<String> fields, String... prefix) {
+        return fields.stream().filter(field -> !field.startsWith(prefix[0]) && !field.startsWith(prefix[1])).toList();
+    }
+
+    private List<String> addSpecificQueryId(List<String> fields, String prefix) {
+        final Set<String> filterFields = new HashSet<>(fields);
+        final String id = "id";
+        filterFields.add(id);
+        if (prefix != null) {
+            filterFields.add(prefix + id);
+        }
+        return new ArrayList<>(filterFields);
     }
 
 }
