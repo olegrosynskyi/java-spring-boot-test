@@ -51,4 +51,5 @@ project.libraries = [
         commons_lang3                : 'org.apache.commons:commons-lang3',
         guava                        : 'com.google.guava:guava:31.1-jre',
         lombok                       : 'org.projectlombok:lombok',
+        jooq_jool                    : 'org.jooq:jool:0.9.14'
 ]

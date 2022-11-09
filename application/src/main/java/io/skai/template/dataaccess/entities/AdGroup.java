@@ -17,13 +17,13 @@ public class AdGroup implements OpenPlatformDto {
     Long id;
     @JsonProperty("campaign_id")
     Long campaignId;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Campaign campaign;
     String name;
     Status status;
     @JsonProperty(value = "create_date", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime createDate;
     @JsonProperty(value = "last_updated", access = JsonProperty.Access.READ_ONLY)
     LocalDateTime lastUpdated;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Campaign campaign;
 
 }

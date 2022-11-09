@@ -94,7 +94,8 @@ public class CampaignDaoImpl implements CampaignDao {
         final long limit = apiFetchRequest.getLimit();
 
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(fetchFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseCampaignFieldsWithPrefix(fetchFields);
+
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
@@ -129,7 +130,6 @@ public class CampaignDaoImpl implements CampaignDao {
                                         adGroupFields.forEach(field -> {
                                             field.getValueApplier().apply(adGroupBuilder, rec);
                                         });
-
                                         return adGroupBuilder.build();
                                     }).toList();
 

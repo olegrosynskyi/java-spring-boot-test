@@ -1,5 +1,8 @@
 package io.skai.template.dataaccess.dao;
 
+import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
+import com.kenshoo.openplatform.apimodel.QueryFilter;
+import com.kenshoo.openplatform.apimodel.enums.FilterOperator;
 import io.skai.template.Application;
 import io.skai.template.dataaccess.entities.AdGroup;
 import io.skai.template.dataaccess.entities.Campaign;
@@ -29,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AdGroupDaoIntegrationTest {
 
     private static final long CAMPAIGN_ID = 22L;
+    private static final long CAMPAIGN_ANOTHER_ID = 23L;
+    private static final long CAMPAIGN_ID_WITHOUT_RELATIONS = 25L;
     private static final long ANOTHER_CAMPAIGN_ID = 100L;
     private static final long ONE_MORE_CAMPAIGN_ID = 1019L;
     private static final long CAMPAIGN1_ID = 10L;
@@ -39,6 +44,9 @@ class AdGroupDaoIntegrationTest {
     private static final String ANOTHER_CAMPAIGN_KS_NAME_THAT_CANNOT_BE_INCLUDED_BECAUSE_NOT_THAT_NAME_FOR_SEARCHING = "campaign_ks_name_another_test";
     private static final Status CAMPAIGN_STATUS = Status.ACTIVE;
     private static final long AD_GROUP_ID = 4L;
+    private static final long AD_GROUP_ANOTHER_ID = 5L;
+    private static final long AD_GROUP_ONE_MORE_ID = 6L;
+    private static final long AD_GROUP_ID_WITHOUT_RELATIONS = 7L;
     private static final long AD_GROUP_WRONG_ID = 999_999_999L;
     private static final String AD_GROUP_NAME = "ad_group_name_test";
     private static final String ANOTHER_AD_GROUP_NAME = "ad_group_name_another_test";
@@ -49,6 +57,12 @@ class AdGroupDaoIntegrationTest {
     private static final Status STATUS_PAUSED = Status.PAUSED;
     private static final Status STATUS_ACTIVE = Status.ACTIVE;
     private static final Status CAMPAIGN_STATUS_THAT_CANNOT_BE_INCLUDED_BECAUSE__DELETED = Status.DELETED;
+    private static final String FILTER_VALUES = "campaign_name_test";
+    private static final String QUERY_FIELD = "name";
+    private static final FilterOperator FILTER_OPERATOR_EQUALS = FilterOperator.EQUALS;
+    private static final List<String> API_FETCH_REQUEST_FIELDS = List.of("id", "campaignId", "status", "campaign.id", "campaign.name");
+    private static final int API_FETCH_REQUEST_LIMIT = 3;
+
     @Autowired
     private AdGroupDao adGroupDao;
     @Autowired
@@ -422,8 +436,150 @@ class AdGroupDaoIntegrationTest {
         assertThat(result.isEmpty(), is(true));
     }
 
+    @Test
+    public void verifyFetchAdGroupsWhenDoApiFetchRequest() {
+        final List<Campaign> campaignsWithAdGroupsForCreate = List.of(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ID_WITHOUT_RELATIONS)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID_WITHOUT_RELATIONS)
+                                        .campaignId(0L)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build()
+        );
+
+        createCampaignsWithAdGroups(campaignsWithAdGroupsForCreate);
+
+        final List<QueryFilter<String>> queryFilters = List.of(
+                new QueryFilter.Builder<String>()
+                        .withField(QUERY_FIELD)
+                        .withOperator(FILTER_OPERATOR_EQUALS)
+                        .withValues(FILTER_VALUES)
+                        .build()
+        );
+
+        final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
+                .withFields(API_FETCH_REQUEST_FIELDS)
+                .withFilters(queryFilters)
+                .withLimit(API_FETCH_REQUEST_LIMIT)
+                .build();
+
+        final List<AdGroup> adGroups = adGroupDao.fetchAdGroups(apiFetchRequest);
+
+        assertThat(adGroups.size(), is(API_FETCH_REQUEST_LIMIT));
+        assertThat(adGroups, containsInAnyOrder(
+                AdGroup.builder()
+                        .id(AD_GROUP_ID)
+                        .campaignId(CAMPAIGN_ID)
+                        .status(AD_GROUP_STATUS)
+                        .campaign(Campaign.builder()
+                                .id(CAMPAIGN_ID)
+                                .name(CAMPAIGN_NAME)
+                                .build()
+                        )
+                        .build(),
+                AdGroup.builder()
+                        .id(AD_GROUP_ANOTHER_ID)
+                        .campaignId(CAMPAIGN_ID)
+                        .status(AD_GROUP_STATUS)
+                        .campaign(Campaign.builder()
+                                .id(CAMPAIGN_ID)
+                                .name(CAMPAIGN_NAME)
+                                .build()
+                        )
+                        .build(),
+                AdGroup.builder()
+                        .id(AD_GROUP_ONE_MORE_ID)
+                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                        .status(AD_GROUP_STATUS)
+                        .campaign(Campaign.builder()
+                                .id(CAMPAIGN_ANOTHER_ID)
+                                .name(CAMPAIGN_NAME)
+                                .build()
+                        )
+                        .build()
+        ));
+    }
+
     private long createAdGroup(AdGroup adGroup) throws NullPointerException {
         return adGroupDao.create(adGroup);
+    }
+
+    private void createCampaignsWithAdGroups(List<Campaign> campaigns) {
+        campaigns.forEach(campaign -> {
+            createCampaignWithAddedId(campaign);
+            campaign.getAdGroups().forEach(this::createAdGroupWithId);
+        });
+    }
+
+    private void createCampaignWithAddedId(Campaign campaign) {
+        dslContext.insertInto(
+                CampaignTable.TABLE,
+                CampaignTable.TABLE.id,
+                CampaignTable.TABLE.name,
+                CampaignTable.TABLE.ksName,
+                CampaignTable.TABLE.status
+        ).values(
+                campaign.getId(),
+                campaign.getName(),
+                campaign.getKsName(),
+                campaign.getStatus().name()
+        ).execute();
+    }
+
+    private long createAdGroupWithId(AdGroup adGroup) {
+        dslContext.insertInto(
+                AdGroupTable.TABLE,
+                AdGroupTable.TABLE.id,
+                AdGroupTable.TABLE.campaignId,
+                AdGroupTable.TABLE.name,
+                AdGroupTable.TABLE.status
+        ).values(
+                adGroup.getId(),
+                adGroup.getCampaignId(),
+                adGroup.getName(),
+                adGroup.getStatus().name()
+        ).execute();
+
+        return dslContext.lastID().longValue();
     }
 
     private long createAdGroupWithIdAndDate(AdGroup adGroup) {
@@ -443,18 +599,6 @@ class AdGroupDaoIntegrationTest {
                         adGroup.getCreateDate(),
                         adGroup.getLastUpdated()
                 ).execute();
-    }
-
-    private long updateAdGroup(AdGroup adGroup) {
-        return dslContext.update(AdGroupTable.TABLE)
-                .set(AdGroupTable.TABLE.id, adGroup.getId())
-                .set(AdGroupTable.TABLE.campaignId, adGroup.getCampaignId())
-                .set(AdGroupTable.TABLE.name, adGroup.getName())
-                .set(AdGroupTable.TABLE.status, adGroup.getStatus().name())
-                .set(AdGroupTable.TABLE.createDate, adGroup.getCreateDate())
-                .set(AdGroupTable.TABLE.lastUpdated, adGroup.getLastUpdated())
-                .where(AdGroupTable.TABLE.id.eq(adGroup.getId()))
-                .execute();
     }
 
     private long createCampaign(Campaign campaign) {
