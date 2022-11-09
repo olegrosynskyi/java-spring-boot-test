@@ -21,16 +21,11 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     private static final String AD_GROUP_PREFIX = "adGroup.";
     private static final String CAMPAIGN_PREFIX = "campaign.";
 
-    private static final List<String> prefixes = List.of(
-            AD_GROUP_PREFIX,
-            CAMPAIGN_PREFIX
-    );
-
     private static final FieldMapper<Long, AdGroup.AdGroupBuilder> AD_GROUP_ID_FIELD = new FieldMapper<>("id", AdGroupTable.TABLE.id, (builder, value) -> builder.id(value));
     private static final FieldMapper<Long, Campaign.CampaignBuilder> CAMPAIGN_ID_FIELD = new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value));
 
     private static final List<FieldMapper<?, Campaign.CampaignBuilder>> CAMPAIGN_FIELDS = List.of(
-            new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value)),
+            CAMPAIGN_ID_FIELD,
             new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value)),
             new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value)),
             new FieldMapper<>("status", CampaignTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
@@ -39,7 +34,7 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     );
 
     private static final List<FieldMapper<?, AdGroup.AdGroupBuilder>> AD_CROUP_FIELDS = List.of(
-            new FieldMapper<>("id", AdGroupTable.TABLE.id, (builder, value) -> builder.id(value)),
+            AD_GROUP_ID_FIELD,
             new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value)),
             new FieldMapper<>("name", AdGroupTable.TABLE.name, (builder, value) -> builder.name(value)),
             new FieldMapper<>("status", AdGroupTable.TABLE.status, (builder, value) -> builder.status(Status.valueOf(value))),
@@ -84,7 +79,7 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     }
 
     private List<String> getFieldsWithoutPrefix(List<String> fields) {
-        return fields.stream().filter(field -> prefixes.stream().noneMatch(field::startsWith)).toList();
+        return fields.stream().filter(field -> !field.contains(".")).toList();
     }
 
 }
