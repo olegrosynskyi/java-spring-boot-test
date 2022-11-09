@@ -8,12 +8,10 @@ import io.skai.template.dataaccess.table.AdGroupTable;
 import io.skai.template.dataaccess.table.CampaignTable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service("fieldMapperService")
 @Slf4j
@@ -22,6 +20,14 @@ public class FieldMapperServiceImpl implements FieldMapperService {
 
     private static final String AD_GROUP_PREFIX = "adGroup.";
     private static final String CAMPAIGN_PREFIX = "campaign.";
+
+    private static final List<String> prefixes = List.of(
+            AD_GROUP_PREFIX,
+            CAMPAIGN_PREFIX
+    );
+
+    private static final FieldMapper<Long, AdGroup.AdGroupBuilder> AD_GROUP_ID_FIELD = new FieldMapper<>("id", AdGroupTable.TABLE.id, (builder, value) -> builder.id(value));
+    private static final FieldMapper<Long, Campaign.CampaignBuilder> CAMPAIGN_ID_FIELD = new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value));
 
     private static final List<FieldMapper<?, Campaign.CampaignBuilder>> CAMPAIGN_FIELDS = List.of(
             new FieldMapper<>("id", CampaignTable.TABLE.id, (builder, value) -> builder.id(value)),
@@ -43,26 +49,26 @@ public class FieldMapperServiceImpl implements FieldMapperService {
 
     @Override
     public List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFields(List<String> fields) {
-        final List<String> filterFields = getFieldsWithoutPrefix(addSpecificQueryId(fields, null), CAMPAIGN_PREFIX, AD_GROUP_PREFIX);
-        return getCampaignFields(filterFields);
+        final List<String> filterFields = getFieldsWithoutPrefix(fields);
+        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     @Override
     public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(addSpecificQueryId(fields, AD_GROUP_PREFIX), AD_GROUP_PREFIX);
-        return getAdGroupFields(filterFields);
+        final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
+        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     @Override
     public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFields(List<String> fields) {
-        final List<String> filterFields = getFieldsWithoutPrefix(addSpecificQueryId(fields, null), CAMPAIGN_PREFIX, AD_GROUP_PREFIX);
-        return getAdGroupFields(filterFields);
+        final List<String> filterFields = getFieldsWithoutPrefix(fields);
+        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     @Override
     public List<FieldMapper<?, Campaign.CampaignBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(addSpecificQueryId(fields, CAMPAIGN_PREFIX), CAMPAIGN_PREFIX);
-        return getCampaignFields(filterFields);
+        final List<String> filterFields = getFieldsWithPrefix(fields, CAMPAIGN_PREFIX);
+        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     private List<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignFields(List<String> fields) {
@@ -77,18 +83,8 @@ public class FieldMapperServiceImpl implements FieldMapperService {
         return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
     }
 
-    private List<String> getFieldsWithoutPrefix(List<String> fields, String... prefix) {
-        return fields.stream().filter(field -> !field.startsWith(prefix[0]) && !field.startsWith(prefix[1])).toList();
-    }
-
-    private List<String> addSpecificQueryId(List<String> fields, String prefix) {
-        final Set<String> filterFields = new HashSet<>(fields);
-        final String id = "id";
-        filterFields.add(id);
-        if (prefix != null) {
-            filterFields.add(prefix + id);
-        }
-        return new ArrayList<>(filterFields);
+    private List<String> getFieldsWithoutPrefix(List<String> fields) {
+        return fields.stream().filter(field -> prefixes.stream().noneMatch(field::startsWith)).toList();
     }
 
 }

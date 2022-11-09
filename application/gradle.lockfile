@@ -72,6 +72,7 @@ org.attoparser:attoparser:2.0.5.RELEASE=compileClasspath
 org.checkerframework:checker-qual:3.12.0=compileClasspath
 org.hdrhistogram:HdrHistogram:2.1.12=compileClasspath
 org.jooq:jooq:3.14.16=compileClasspath
+org.jooq:jool:0.9.14=compileClasspath
 org.liquibase:liquibase-core:4.9.1=compileClasspath
 org.projectlombok:lombok:1.18.24=compileClasspath
 org.reactivestreams:reactive-streams:1.0.4=compileClasspath
