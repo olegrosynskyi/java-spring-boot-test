@@ -1,11 +1,13 @@
 package io.skai.template.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kenshoo.openplatform.apimodel.ApiFetchRequest;
 import com.kenshoo.openplatform.apimodel.ApiResponse;
 import com.kenshoo.openplatform.apimodel.QueryFilter;
 import com.kenshoo.openplatform.apimodel.WriteResponseDto;
+import com.kenshoo.openplatform.apimodel.enums.FilterOperator;
 import com.kenshoo.openplatform.apimodel.enums.StatusResponse;
 import com.kenshoo.openplatform.apimodel.errors.FieldError;
 import io.skai.template.dataaccess.entities.Campaign;
@@ -14,10 +16,11 @@ import io.skai.template.dataaccess.entities.QueryFilterException;
 import io.skai.template.services.CampaignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.lambda.Seq;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,7 +65,7 @@ public class CampaignController {
 
     @GetMapping("/")
     public ApiResponse<Campaign> fetchAllCampaigns(FetchQuery fetchQuery) {
-        final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
                 .withFilters(parseFilterQuery(fetchQuery.filters()))
                 .withFields(fetchQuery.fields())
                 .withLimit(fetchQuery.limit())
@@ -88,11 +91,19 @@ public class CampaignController {
                 .build();
     }
 
-    private static List<QueryFilter<String>> parseFilterQuery(String filter) {
+    private static List<QueryFilter<List<String>>> parseFilterQuery(String filter) {
         final ObjectMapper mapper = new ObjectMapper();
+        final List<QueryFilter<List<String>>> queryFilters = new ArrayList<>();
         try {
-            final QueryFilter<String>[] queryFilters = mapper.readValue(filter, QueryFilter[].class);
-            return Arrays.asList(queryFilters);
+            for (JsonNode jsonNode : mapper.readTree(filter)) {
+                final String field = jsonNode.get("field").asText();
+                final FilterOperator operator = FilterOperator.valueOf(jsonNode.get("operator").asText());
+                final List<String> values = Seq.seq(jsonNode.get("values").iterator()).map(JsonNode::asText).toList();
+
+                final QueryFilter<List<String>> queryFilter = new QueryFilter<>(field, operator, values);
+                queryFilters.add(queryFilter);
+            }
+            return queryFilters;
         } catch (JsonProcessingException e) {
             throw new QueryFilterException(List.of(new FieldError("filters", "Cannot parse filters query param. Invalid json pattern")));
         }

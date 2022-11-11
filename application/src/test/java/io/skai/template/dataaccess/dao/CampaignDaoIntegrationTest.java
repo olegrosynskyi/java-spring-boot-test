@@ -279,17 +279,9 @@ class CampaignDaoIntegrationTest {
 
         createCampaignsWithAdGroups(campaignsForCreate);
 
-        final List<QueryFilter<String>> queryFilters = List.of(
-                new QueryFilter.Builder<String>()
-                        .withField(QUERY_FIELD)
-                        .withOperator(FILTER_OPERATOR_EQUALS)
-                        .withValues(FILTER_VALUES)
-                        .build()
-        );
-
-        final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
                 .withFields(API_FETCH_REQUEST_FIELDS)
-                .withFilters(queryFilters)
+                .withFilters(null)
                 .withLimit(API_FETCH_REQUEST_LIMIT)
                 .build();
 
