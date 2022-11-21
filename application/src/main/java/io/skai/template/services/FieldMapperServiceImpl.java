@@ -12,6 +12,7 @@ import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service("fieldMapperService")
 @Slf4j
@@ -49,9 +50,21 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     }
 
     @Override
+    public Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field) {
+        final String filterField = getFieldWithoutPrefix(field);
+        return getCampaignField(filterField);
+    }
+
+    @Override
     public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
         final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
         return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
+    }
+
+    @Override
+    public Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldWithPrefix(String field) {
+        final String filterField = getFieldWithPrefix(field, AD_GROUP_PREFIX);
+        return getAdGroupField(filterField);
     }
 
     @Override
@@ -70,16 +83,32 @@ public class FieldMapperServiceImpl implements FieldMapperService {
         return CAMPAIGN_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
     }
 
+    private Optional<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignField(String field) {
+        return CAMPAIGN_FIELDS.stream().filter(campaignField -> campaignField.getName().equals(field)).findFirst();
+    }
+
     private List<FieldMapper<?, AdGroup.AdGroupBuilder>> getAdGroupFields(List<String> fields) {
         return AD_CROUP_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
+    }
+
+    private Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> getAdGroupField(String field) {
+        return AD_CROUP_FIELDS.stream().filter(adGroupField -> adGroupField.getName().equals(field)).findFirst();
     }
 
     private List<String> getFieldsWithPrefix(List<String> fields, String prefix) {
         return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
     }
 
+    private String getFieldWithPrefix(String field, String prefix) {
+        return field.startsWith(prefix) ? field.substring(prefix.length()) : null;
+    }
+
     private List<String> getFieldsWithoutPrefix(List<String> fields) {
         return fields.stream().filter(field -> !field.contains(".")).toList();
+    }
+
+    private String getFieldWithoutPrefix(String field) {
+        return !field.contains(".") ? field : null;
     }
 
 }

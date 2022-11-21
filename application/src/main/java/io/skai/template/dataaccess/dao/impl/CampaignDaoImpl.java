@@ -17,6 +17,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.TableField;
+import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -98,13 +99,10 @@ public class CampaignDaoImpl implements CampaignDao {
 
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
 
-        final List<Condition> campaignCondition = filterQueryService.filteringCampaigns(queryFilters, selectFields);
-        final List<Condition> adGroupCondition = filterQueryService.filteringCampaignsWithPrefix(queryFilters, selectFields);
+        final Condition campaignCondition = filterQueryService.filteringCampaigns(queryFilters);
+        final Condition adGroupCondition = filterQueryService.filteringCampaignsWithPrefix(queryFilters);
 
-        final Condition condition = Stream.of(campaignCondition, adGroupCondition).flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .reduce(Condition::or)
-                .orElse(null);
+        final Condition condition = Seq.of(adGroupCondition, campaignCondition).filter(Objects::nonNull).reduce(Condition::or).orElse(null);
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
                 .from(CampaignTable.TABLE)
