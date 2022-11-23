@@ -61,7 +61,7 @@ public class FilterQueryServiceTest {
         assertThat(condition, is(
                         CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_1)
                                 .or(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_2))
-                                .or(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_3))
+                                .and(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_3))
                 )
         );
     }
@@ -97,7 +97,7 @@ public class FilterQueryServiceTest {
         assertThat(condition, is(
                         AdGroupTable.TABLE.campaignId.equalIgnoreCase(AD_GROUP_CAMPAIGN_ID_1)
                                 .or(AdGroupTable.TABLE.campaignId.equalIgnoreCase(AD_GROUP_CAMPAIGN_ID_2))
-                                .or(AdGroupTable.TABLE.campaignId.equalIgnoreCase(AD_GROUP_CAMPAIGN_ID_3))
+                                .and(AdGroupTable.TABLE.campaignId.equalIgnoreCase(AD_GROUP_CAMPAIGN_ID_3))
                 )
         );
     }
@@ -116,7 +116,7 @@ public class FilterQueryServiceTest {
 
         assertThat(condition, is(
                         CampaignTable.TABLE.name.in(CAMPAIGN_NAME_1, CAMPAIGN_NAME_2)
-                                .or(CampaignTable.TABLE.name.in(CAMPAIGN_NAME_3))
+                                .and(CampaignTable.TABLE.name.in(CAMPAIGN_NAME_3))
                 )
         );
     }
@@ -151,7 +151,7 @@ public class FilterQueryServiceTest {
 
         assertThat(condition, is(
                         AdGroupTable.TABLE.campaignId.in(1L, 2L)
-                                .or(AdGroupTable.TABLE.campaignId.in(3L))
+                                .and(AdGroupTable.TABLE.campaignId.in(3L))
                 )
         );
     }
@@ -172,8 +172,8 @@ public class FilterQueryServiceTest {
         assertThat(condition, is(
                         CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_1)
                                 .or(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_2))
-                                .or(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_3))
-                                .or(CampaignTable.TABLE.name.in(CAMPAIGN_NAME_4, CAMPAIGN_NAME_5))
+                                .and(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_3))
+                                .and(CampaignTable.TABLE.name.in(CAMPAIGN_NAME_4, CAMPAIGN_NAME_5))
                 )
         );
     }
@@ -195,7 +195,7 @@ public class FilterQueryServiceTest {
 
         assertThat(condition, is(
                 CampaignTable.TABLE.ksName.equalIgnoreCase(CAMPAIGN_KS_NAME_1)
-                        .or(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3))
+                        .and(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3))
         ));
     }
 

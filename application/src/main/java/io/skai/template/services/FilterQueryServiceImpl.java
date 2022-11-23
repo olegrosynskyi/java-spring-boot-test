@@ -29,14 +29,14 @@ public class FilterQueryServiceImpl implements FilterQueryService {
     public Condition filteringCampaigns(List<QueryFilter<List<String>>> queryFilters) {
         final List<QueryFilter<List<String>>> filters = getQueryFiltersWithoutPrefix(queryFilters);
 
-        return Seq.seq(filters).map(this::filtering).reduce(Condition::or).orElse(null);
+        return Seq.seq(filters).map(this::filtering).reduce(Condition::and).orElse(null);
     }
 
     @Override
     public Condition filteringCampaignsWithPrefix(List<QueryFilter<List<String>>> queryFilters) {
         final List<QueryFilter<List<String>>> filters = getQueryFiltersWithPrefix(queryFilters, AD_GROUP_PREFIX);
 
-        return Seq.seq(filters).map(this::filtering).reduce(Condition::or).orElse(null);
+        return Seq.seq(filters).map(this::filtering).reduce(Condition::and).orElse(null);
     }
 
     private List<QueryFilter<List<String>>> getQueryFiltersWithoutPrefix(List<QueryFilter<List<String>>> queryFilters) {

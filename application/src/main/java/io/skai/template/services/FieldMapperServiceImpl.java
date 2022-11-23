@@ -52,11 +52,13 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     @Override
     public Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field) {
         final String filterField = getFieldWithoutPrefix(field);
-        return getCampaignField(filterField);
+        return (filterField != null)
+                ? Optional.of(getCampaignFields(List.of(filterField)).get(0))
+                : Optional.empty();
     }
 
     @Override
-    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
+    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(List<String> fields) {
         final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
         return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
@@ -64,7 +66,9 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     @Override
     public Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldWithPrefix(String field) {
         final String filterField = getFieldWithPrefix(field, AD_GROUP_PREFIX);
-        return getAdGroupField(filterField);
+        return (filterField != null)
+                ? Optional.of(getAdGroupFields(List.of(filterField)).get(0))
+                : Optional.empty();
     }
 
     @Override
@@ -83,16 +87,8 @@ public class FieldMapperServiceImpl implements FieldMapperService {
         return CAMPAIGN_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
     }
 
-    private Optional<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignField(String field) {
-        return CAMPAIGN_FIELDS.stream().filter(campaignField -> campaignField.getName().equals(field)).findFirst();
-    }
-
     private List<FieldMapper<?, AdGroup.AdGroupBuilder>> getAdGroupFields(List<String> fields) {
         return AD_CROUP_FIELDS.stream().filter(campaignField -> fields.contains(campaignField.getName())).toList();
-    }
-
-    private Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> getAdGroupField(String field) {
-        return AD_CROUP_FIELDS.stream().filter(adGroupField -> adGroupField.getName().equals(field)).findFirst();
     }
 
     private List<String> getFieldsWithPrefix(List<String> fields, String prefix) {

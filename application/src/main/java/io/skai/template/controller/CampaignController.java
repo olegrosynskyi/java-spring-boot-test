@@ -20,7 +20,6 @@ import org.jooq.lambda.Seq;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -93,17 +92,14 @@ public class CampaignController {
 
     private static List<QueryFilter<List<String>>> parseFilterQuery(String filter) {
         final ObjectMapper mapper = new ObjectMapper();
-        final List<QueryFilter<List<String>>> queryFilters = new ArrayList<>();
         try {
-            for (JsonNode jsonNode : mapper.readTree(filter)) {
+            return Seq.seq(mapper.readTree(filter).iterator()).map(jsonNode -> {
                 final String field = jsonNode.get("field").asText();
                 final FilterOperator operator = FilterOperator.valueOf(jsonNode.get("operator").asText());
                 final List<String> values = Seq.seq(jsonNode.get("values").iterator()).map(JsonNode::asText).toList();
 
-                final QueryFilter<List<String>> queryFilter = new QueryFilter<>(field, operator, values);
-                queryFilters.add(queryFilter);
-            }
-            return queryFilters;
+                return new QueryFilter<>(field, operator, values);
+            }).toList();
         } catch (JsonProcessingException e) {
             throw new QueryFilterException(List.of(new FieldError("filters", "Cannot parse filters query param. Invalid json pattern")));
         }

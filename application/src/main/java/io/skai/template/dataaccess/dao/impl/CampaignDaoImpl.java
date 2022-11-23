@@ -95,7 +95,7 @@ public class CampaignDaoImpl implements CampaignDao {
         final long limit = apiFetchRequest.getLimit();
 
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseCampaignFieldsWithPrefix(fetchFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFieldWithPrefix(fetchFields);
 
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
 
