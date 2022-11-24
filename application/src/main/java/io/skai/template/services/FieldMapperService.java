@@ -13,9 +13,9 @@ public interface FieldMapperService {
 
     Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field);
 
-    List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(List<String> fields);
+    List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields);
 
-    Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldWithPrefix(String field);
+    Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(String field);
 
     List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFields(List<String> fields);
 

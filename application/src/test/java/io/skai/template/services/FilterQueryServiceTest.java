@@ -54,7 +54,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 
@@ -75,7 +75,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 
@@ -89,7 +89,7 @@ public class FilterQueryServiceTest {
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.EQUALS, List.of(AD_GROUP_CAMPAIGN_ID_3))
         );
 
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaignsWithPrefix(queryFilters);
@@ -110,7 +110,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 
@@ -130,7 +130,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 
@@ -144,7 +144,7 @@ public class FilterQueryServiceTest {
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.IN, List.of(AD_GROUP_CAMPAIGN_ID_3))
         );
 
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaignsWithPrefix(queryFilters);
@@ -165,7 +165,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 
@@ -189,7 +189,7 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-        when(fieldMapperService.parseCampaignFieldWithPrefix(anyString())).thenReturn(Optional.empty());
+        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
 
         final Condition condition = filterQueryService.filteringCampaigns(queryFilters);
 

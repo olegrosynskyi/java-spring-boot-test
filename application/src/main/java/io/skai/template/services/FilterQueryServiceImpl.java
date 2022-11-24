@@ -78,7 +78,7 @@ public class FilterQueryServiceImpl implements FilterQueryService {
 
     private List<FieldMapper<?, ?>> getTableFields(String field) {
         final FieldMapper<?, Campaign.CampaignBuilder> fieldToSearchWithoutPrefix = fieldMapperService.parseCampaignField(field).orElse(null);
-        final FieldMapper<?, AdGroup.AdGroupBuilder> fieldToSearchWithPrefix = fieldMapperService.parseCampaignFieldWithPrefix(field).orElse(null);
+        final FieldMapper<?, AdGroup.AdGroupBuilder> fieldToSearchWithPrefix = fieldMapperService.parseAdGroupFieldWithPrefix(field).orElse(null);
 
         return Seq.of(
                 fieldToSearchWithoutPrefix,
