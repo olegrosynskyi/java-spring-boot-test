@@ -20,7 +20,10 @@ import org.jooq.TableField;
 import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,14 +98,18 @@ public class CampaignDaoImpl implements CampaignDao {
         final long limit = apiFetchRequest.getLimit();
 
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFieldWithPrefix(fetchFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFieldsWithPrefix(fetchFields);
 
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
 
-        final Condition campaignCondition = filterQueryService.filteringCampaigns(queryFilters);
-        final Condition adGroupCondition = filterQueryService.filteringCampaignsWithPrefix(queryFilters);
+        final Optional<Condition> campaignCondition = filterQueryService.filteringByCampaignFields(queryFilters);
+        final Optional<Condition> adGroupCondition = filterQueryService.filteringByAdGroupFieldsWithPrefixes(queryFilters);
 
-        final Condition condition = Seq.of(adGroupCondition, campaignCondition).filter(Objects::nonNull).reduce(Condition::or).orElse(null);
+        final Condition condition = Seq.of(adGroupCondition, campaignCondition)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(Condition::and)
+                .orElse(null);
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
                 .from(CampaignTable.TABLE)

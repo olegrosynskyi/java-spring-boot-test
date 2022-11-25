@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -94,14 +95,39 @@ public class CampaignController {
         final ObjectMapper mapper = new ObjectMapper();
         try {
             return Seq.seq(mapper.readTree(filter).iterator()).map(jsonNode -> {
-                final String field = jsonNode.get("field").asText();
-                final FilterOperator operator = FilterOperator.valueOf(jsonNode.get("operator").asText());
-                final List<String> values = Seq.seq(jsonNode.get("values").iterator()).map(JsonNode::asText).toList();
+                final String fieldNotContainsMessage = "Json not contains field";
+                final String field = Optional.ofNullable(jsonNode.get("field"))
+                        .orElseThrow(
+                                () -> new QueryFilterException(List.of(new FieldError("field", fieldNotContainsMessage)))
+                        ).asText();
+                final String operator = Optional.ofNullable(jsonNode.get("operator"))
+                        .orElseThrow(
+                                () -> new QueryFilterException(List.of(new FieldError("operator", fieldNotContainsMessage)))
+                        ).asText();
+                final List<String> values = Seq.seq(Optional.ofNullable(jsonNode.get("values"))
+                        .orElseThrow(
+                                () -> new QueryFilterException(List.of(new FieldError("values", fieldNotContainsMessage)))
+                        ).iterator()).map(JsonNode::asText).toList();
 
-                return new QueryFilter<>(field, operator, values);
+                validateJsonValues(field, operator, values);
+
+                final FilterOperator filterOperator = FilterOperator.valueOf(operator);
+
+
+                return new QueryFilter<>(field, filterOperator, values);
             }).toList();
         } catch (JsonProcessingException e) {
             throw new QueryFilterException(List.of(new FieldError("filters", "Cannot parse filters query param. Invalid json pattern")));
+        }
+    }
+
+    private static void validateJsonValues(String field, String operator, List<String> values) {
+        if (field == null || field.isBlank() || field.isEmpty()) {
+            throw new QueryFilterException(List.of(new FieldError("field", "Field value can not be empty")));
+        } else if (operator == null || operator.isBlank() || operator.isEmpty()) {
+            throw new QueryFilterException(List.of(new FieldError("operator", "Operator value can not be empty")));
+        } else if (values.isEmpty()) {
+            throw new QueryFilterException(List.of(new FieldError("values", "Value array can not be empty")));
         }
     }
 

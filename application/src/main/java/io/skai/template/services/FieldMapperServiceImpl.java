@@ -51,24 +51,22 @@ public class FieldMapperServiceImpl implements FieldMapperService {
 
     @Override
     public Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field) {
-        final String filterField = getFieldWithoutPrefix(field);
-        return (filterField != null)
-                ? Optional.of(getCampaignFields(List.of(filterField)).get(0))
-                : Optional.empty();
+        return Optional.ofNullable(getFieldWithoutPrefix(field))
+                .map(adGroupField -> getCampaignFields(List.of(adGroupField)))
+                .flatMap(parsedField -> parsedField.stream().findFirst());
     }
 
     @Override
-    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
-        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
+    public List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(fields, CAMPAIGN_PREFIX);
+        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     @Override
-    public Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldWithPrefix(String field) {
-        final String filterField = getFieldWithPrefix(field, AD_GROUP_PREFIX);
-        return (filterField != null)
-                ? Optional.of(getAdGroupFields(List.of(filterField)).get(0))
-                : Optional.empty();
+    public Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(String field) {
+        return Optional.ofNullable(getFieldWithPrefix(field, AD_GROUP_PREFIX))
+                .map(adGroupField -> getAdGroupFields(List.of(adGroupField)))
+                .flatMap(parsedField -> parsedField.stream().findFirst());
     }
 
     @Override
@@ -78,9 +76,9 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     }
 
     @Override
-    public List<FieldMapper<?, Campaign.CampaignBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(fields, CAMPAIGN_PREFIX);
-        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
+    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
+        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     private List<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignFields(List<String> fields) {

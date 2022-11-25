@@ -164,7 +164,7 @@ class FieldMapperServiceTest {
 
     @Test
     public void verifyWhenParseCampaignFieldWithPrefix() {
-        final Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> field = fieldMapperService.parseCampaignFieldWithPrefix(CAMPAIGN_FIELD_WITH_PREFIX);
+        final Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> field = fieldMapperService.parseAdGroupFieldWithPrefix(CAMPAIGN_FIELD_WITH_PREFIX);
 
         when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
 

@@ -99,7 +99,7 @@ public class AdGroupDaoImpl implements AdGroupDao {
         final List<String> fetchFields = apiFetchRequest.getFields();
         final long limit = apiFetchRequest.getLimit();
 
-        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseAdGroupFieldsWithPrefix(fetchFields);
+        final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFieldsWithPrefix(fetchFields);
         final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFields(fetchFields);
 
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
