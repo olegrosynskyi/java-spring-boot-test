@@ -137,32 +137,4 @@ public class FilterQueryServiceTest {
         );
     }
 
-    @Test
-    public void verifyFilteringByCampaignFieldsWithoutAnyQueryFilters() {
-        final Optional<Condition> expectedCondition = Optional.of(CampaignTable.TABLE.ksName.equalIgnoreCase(CAMPAIGN_KS_NAME_1)
-                .and(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3)));
-
-        final FilterQueryServiceImpl queryService = mock(FilterQueryServiceImpl.class);
-
-        when(queryService.filteringByCampaignFields(null)).thenReturn(expectedCondition);
-
-        final Optional<Condition> condition = queryService.filteringByCampaignFields(null);
-
-        assertThat(condition, is(expectedCondition));
-    }
-
-    @Test
-    public void verifyFilteringByAdGroupFieldsWithPrefixesWithoutAnyQueryFilters() {
-        final Optional<Condition> expectedCondition = Optional.of(AdGroupTable.TABLE.campaignId.in(1L, 2L)
-                .and(AdGroupTable.TABLE.campaignId.in(3L)));
-
-        final FilterQueryServiceImpl queryService = mock(FilterQueryServiceImpl.class);
-
-        when(queryService.filteringByAdGroupFieldsWithPrefixes(null)).thenReturn(expectedCondition);
-
-        final Optional<Condition> condition = queryService.filteringByAdGroupFieldsWithPrefixes(null);
-
-        assertThat(condition, is(expectedCondition));
-    }
-
 }
