@@ -12,6 +12,7 @@ import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service("fieldMapperService")
 @Slf4j
@@ -49,9 +50,23 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     }
 
     @Override
-    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
-        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
+    public Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field) {
+        return Optional.ofNullable(getFieldWithoutPrefix(field))
+                .map(campaignField -> getCampaignFields(List.of(campaignField)))
+                .flatMap(parsedField -> parsedField.stream().findFirst());
+    }
+
+    @Override
+    public List<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(fields, CAMPAIGN_PREFIX);
+        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
+    }
+
+    @Override
+    public Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldWithPrefix(String field) {
+        return Optional.ofNullable(getFieldWithPrefix(field, AD_GROUP_PREFIX))
+                .map(adGroupField -> getAdGroupFields(List.of(adGroupField)))
+                .flatMap(parsedField -> parsedField.stream().findFirst());
     }
 
     @Override
@@ -61,9 +76,9 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     }
 
     @Override
-    public List<FieldMapper<?, Campaign.CampaignBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
-        final List<String> filterFields = getFieldsWithPrefix(fields, CAMPAIGN_PREFIX);
-        return Seq.seq(getCampaignFields(filterFields)).append(CAMPAIGN_ID_FIELD).distinct(FieldMapper::getName).toList();
+    public List<FieldMapper<?, AdGroup.AdGroupBuilder>> parseAdGroupFieldsWithPrefix(List<String> fields) {
+        final List<String> filterFields = getFieldsWithPrefix(fields, AD_GROUP_PREFIX);
+        return Seq.seq(getAdGroupFields(filterFields)).append(AD_GROUP_ID_FIELD).distinct(FieldMapper::getName).toList();
     }
 
     private List<FieldMapper<?, Campaign.CampaignBuilder>> getCampaignFields(List<String> fields) {
@@ -78,8 +93,16 @@ public class FieldMapperServiceImpl implements FieldMapperService {
         return fields.stream().filter(field -> field.startsWith(prefix)).map(field -> field.substring(prefix.length())).toList();
     }
 
+    private String getFieldWithPrefix(String field, String prefix) {
+        return field.startsWith(prefix) ? field.substring(prefix.length()) : null;
+    }
+
     private List<String> getFieldsWithoutPrefix(List<String> fields) {
         return fields.stream().filter(field -> !field.contains(".")).toList();
+    }
+
+    private String getFieldWithoutPrefix(String field) {
+        return !field.contains(".") ? field : null;
     }
 
 }

@@ -17,6 +17,6 @@ public interface CampaignDao {
 
     long deleteById(long id);
 
-    List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest);
+    List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest);
 
 }

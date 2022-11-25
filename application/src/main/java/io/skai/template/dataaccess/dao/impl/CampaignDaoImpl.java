@@ -10,11 +10,14 @@ import io.skai.template.dataaccess.entities.Status;
 import io.skai.template.dataaccess.table.AdGroupTable;
 import io.skai.template.dataaccess.table.CampaignTable;
 import io.skai.template.services.FieldMapperService;
+import io.skai.template.services.FilterQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.TableField;
+import org.jooq.lambda.Seq;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -31,6 +34,7 @@ public class CampaignDaoImpl implements CampaignDao {
 
     private final DSLContext dslContext;
     private final FieldMapperService fieldMapperService;
+    private final FilterQueryService filterQueryService;
 
     @Override
     public long create(Campaign campaign) {
@@ -86,22 +90,32 @@ public class CampaignDaoImpl implements CampaignDao {
     }
 
     @Override
-    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest) {
         log.info("Fetch campaign with fetch request: {}", apiFetchRequest);
 
-        final List<QueryFilter<String>> queryFilters = apiFetchRequest.getFilters();
+        final List<QueryFilter<List<String>>> queryFilters = apiFetchRequest.getFilters();
         final List<String> fetchFields = apiFetchRequest.getFields();
         final long limit = apiFetchRequest.getLimit();
 
         final List<FieldMapper<?, Campaign.CampaignBuilder>> campaignFields = fieldMapperService.parseCampaignFields(fetchFields);
-        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseCampaignFieldsWithPrefix(fetchFields);
+        final List<FieldMapper<?, AdGroup.AdGroupBuilder>> adGroupFields = fieldMapperService.parseAdGroupFieldsWithPrefix(fetchFields);
 
         final List<TableField<Record, ?>> selectFields = getFetchSelectFields(campaignFields, adGroupFields);
+
+        final Optional<Condition> campaignCondition = filterQueryService.filteringByCampaignFields(queryFilters);
+        final Optional<Condition> adGroupCondition = filterQueryService.filteringByAdGroupFieldsWithPrefixes(queryFilters);
+
+        final Condition condition = Seq.of(adGroupCondition, campaignCondition)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .reduce(Condition::and)
+                .orElse(null);
 
         final Stream<Record> campaignsStream = dslContext.select(selectFields)
                 .from(CampaignTable.TABLE)
                 .leftJoin(AdGroupTable.TABLE)
                 .on(CampaignTable.TABLE.id.eq(AdGroupTable.TABLE.campaignId))
+                .where(condition)
                 .stream();
 
         return getFetchResponseResult(campaignsStream, limit, campaignFields, adGroupFields);

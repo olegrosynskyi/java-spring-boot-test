@@ -62,7 +62,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<String>> apiFetchRequest) {
+    public List<Campaign> fetchCampaigns(ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest) {
         return campaignDao.fetchCampaigns(apiFetchRequest);
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
 public class Campaign implements OpenPlatformDto {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    long id;
+    Long id;
     String name;
     @JsonProperty("ks_name")
     String ksName;

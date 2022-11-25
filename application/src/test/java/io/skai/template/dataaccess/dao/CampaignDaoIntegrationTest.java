@@ -41,6 +41,8 @@ class CampaignDaoIntegrationTest {
     private static final long AD_GROUP_ANOTHER_ID = 342L;
     private static final long AD_GROUP_ONE_MORE_ID = 564L;
     private static final String CAMPAIGN_NAME = "name";
+    private static final String CAMPAIGN_NAME_2 = "name-2";
+    private static final String CAMPAIGN_NAME_3 = "name-3";
     private static final String AD_GROUP_NAME = "ad_group_name";
     private static final String CAMPAIGN_KS_NAME = "ks_name";
     private static final Status CAMPAIGN_STATUS = Status.ACTIVE;
@@ -54,6 +56,8 @@ class CampaignDaoIntegrationTest {
     private static final String FILTER_VALUES = "name_1";
     private static final List<String> API_FETCH_REQUEST_FIELDS = List.of("id", "name", "status", "adGroup.id", "adGroup.campaignId");
     private static final int API_FETCH_REQUEST_LIMIT = 3;
+    private static final String CAMPAIGN_FIELD_NAME = "name";
+    private static final String CAMPAIGN_FIELD_ID = "id";
 
     @BeforeEach
     public void init() {
@@ -234,7 +238,238 @@ class CampaignDaoIntegrationTest {
     }
 
     @Test
-    public void verifyFetchCampaignsWhenDoApiFetchRequest() {
+    public void verifyFetchCampaignsWhenDoApiFetchRequestWithFilterByEqualsAndIn() {
+        final List<Campaign> campaignsForCreate = List.of(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME_2)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ONE_MORE_ID)
+                        .name(CAMPAIGN_NAME_3)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of())
+                        .build()
+        );
+
+        createCampaignsWithAdGroups(campaignsForCreate);
+
+        List<QueryFilter<List<String>>> queryFilters = List.of(
+                new QueryFilter<>(CAMPAIGN_FIELD_NAME, FilterOperator.EQUALS, List.of(CAMPAIGN_NAME, CAMPAIGN_NAME_2)),
+                new QueryFilter<>(CAMPAIGN_FIELD_ID, FilterOperator.IN, List.of(String.valueOf(CAMPAIGN_ID)))
+        );
+
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
+                .withFields(API_FETCH_REQUEST_FIELDS)
+                .withFilters(queryFilters)
+                .withLimit(API_FETCH_REQUEST_LIMIT)
+                .build();
+
+        final List<Campaign> campaigns = campaignDao.fetchCampaigns(apiFetchRequest);
+
+        assertThat(campaigns, containsInAnyOrder(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build()
+                        )).build()
+        ));
+    }
+
+    @Test
+    public void verifyFetchCampaignsWhenDoApiFetchRequestWithFilterByEQUALS() {
+        final List<Campaign> campaignsForCreate = List.of(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME_2)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ONE_MORE_ID)
+                        .name(CAMPAIGN_NAME_3)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of())
+                        .build()
+        );
+
+        createCampaignsWithAdGroups(campaignsForCreate);
+
+        List<QueryFilter<List<String>>> queryFilters = List.of(
+                new QueryFilter<>(CAMPAIGN_FIELD_NAME, FilterOperator.EQUALS, List.of(CAMPAIGN_NAME, CAMPAIGN_NAME_2)),
+                new QueryFilter<>(CAMPAIGN_FIELD_ID, FilterOperator.EQUALS, List.of(String.valueOf(CAMPAIGN_ID)))
+        );
+
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
+                .withFields(API_FETCH_REQUEST_FIELDS)
+                .withFilters(queryFilters)
+                .withLimit(API_FETCH_REQUEST_LIMIT)
+                .build();
+
+        final List<Campaign> campaigns = campaignDao.fetchCampaigns(apiFetchRequest);
+
+        assertThat(campaigns, containsInAnyOrder(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build()
+                        )).build()
+        ));
+    }
+
+    @Test
+    public void verifyFetchCampaignsWhenDoApiFetchRequestWithFilterByIN() {
+        final List<Campaign> campaignsForCreate = List.of(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ANOTHER_ID)
+                        .name(CAMPAIGN_NAME_2)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ONE_MORE_ID)
+                                        .campaignId(CAMPAIGN_ANOTHER_ID)
+                                        .name(AD_GROUP_NAME)
+                                        .status(AD_GROUP_STATUS)
+                                        .build()
+                        )).build(),
+                Campaign.builder()
+                        .id(CAMPAIGN_ONE_MORE_ID)
+                        .name(CAMPAIGN_NAME_3)
+                        .ksName(CAMPAIGN_KS_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of())
+                        .build()
+        );
+
+        createCampaignsWithAdGroups(campaignsForCreate);
+
+        List<QueryFilter<List<String>>> queryFilters = List.of(
+                new QueryFilter<>(CAMPAIGN_FIELD_NAME, FilterOperator.IN, List.of(CAMPAIGN_NAME, CAMPAIGN_NAME_2)),
+                new QueryFilter<>(CAMPAIGN_FIELD_ID, FilterOperator.IN, List.of(String.valueOf(CAMPAIGN_ID)))
+        );
+
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
+                .withFields(API_FETCH_REQUEST_FIELDS)
+                .withFilters(queryFilters)
+                .withLimit(API_FETCH_REQUEST_LIMIT)
+                .build();
+
+        final List<Campaign> campaigns = campaignDao.fetchCampaigns(apiFetchRequest);
+
+        assertThat(campaigns, containsInAnyOrder(
+                Campaign.builder()
+                        .id(CAMPAIGN_ID)
+                        .name(CAMPAIGN_NAME)
+                        .status(CAMPAIGN_STATUS)
+                        .adGroups(List.of(
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build(),
+                                AdGroup.builder()
+                                        .id(AD_GROUP_ANOTHER_ID)
+                                        .campaignId(CAMPAIGN_ID)
+                                        .build()
+                        )).build()
+        ));
+    }
+
+    @Test
+    public void verifyFetchCampaignsWhenDoApiFetchRequestWithoutFilterAndConditionIsNull() {
         final List<Campaign> campaignsForCreate = List.of(
                 Campaign.builder()
                         .id(CAMPAIGN_ID)
@@ -279,17 +514,9 @@ class CampaignDaoIntegrationTest {
 
         createCampaignsWithAdGroups(campaignsForCreate);
 
-        final List<QueryFilter<String>> queryFilters = List.of(
-                new QueryFilter.Builder<String>()
-                        .withField(QUERY_FIELD)
-                        .withOperator(FILTER_OPERATOR_EQUALS)
-                        .withValues(FILTER_VALUES)
-                        .build()
-        );
-
-        final ApiFetchRequest<QueryFilter<String>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<String>>()
+        final ApiFetchRequest<QueryFilter<List<String>>> apiFetchRequest = new ApiFetchRequest.Builder<QueryFilter<List<String>>>()
                 .withFields(API_FETCH_REQUEST_FIELDS)
-                .withFilters(queryFilters)
+                .withFilters(null)
                 .withLimit(API_FETCH_REQUEST_LIMIT)
                 .build();
 

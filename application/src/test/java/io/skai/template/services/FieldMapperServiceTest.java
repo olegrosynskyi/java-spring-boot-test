@@ -14,10 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -37,6 +34,8 @@ class FieldMapperServiceTest {
     private static final LocalDateTime AD_GROUP_CREATE_DATE = LocalDateTime.now();
     private static final LocalDateTime CAMPAIGN_LAST_UPDATED = LocalDateTime.now();
     private static final LocalDateTime AD_GROUP_LAST_UPDATED = LocalDateTime.now();
+    private static final String CAMPAIGN_FIELD = "ksName";
+    private static final String CAMPAIGN_FIELD_WITH_PREFIX = "adGroup.campaignId";
     private static final List<String> filtersWithAllFieldsCampaign = List.of(
             "id",
             "name",
@@ -142,6 +141,44 @@ class FieldMapperServiceTest {
         assertThat(campaign.getCreateDate(), is(nullValue()));
         assertThat(campaign.getLastUpdated(), is(CAMPAIGN_LAST_UPDATED));
         assertThat(campaign.getAdGroups(), is(nullValue()));
+    }
+
+    @Test
+    public void verifyWhenParseCampaignField() {
+        final Optional<FieldMapper<?, Campaign.CampaignBuilder>> field = fieldMapperService.parseCampaignField(CAMPAIGN_FIELD);
+
+        when(record.get(CampaignTable.TABLE.ksName)).thenReturn(CAMPAIGN_KS_NAME);
+
+        assertThat(field.isPresent(), is(true));
+
+        final Campaign campaign = buildCampaign(List.of(field.get()));
+
+        assertThat(campaign.getId(), is(nullValue()));
+        assertThat(campaign.getName(), is(nullValue()));
+        assertThat(campaign.getKsName(), is(CAMPAIGN_KS_NAME));
+        assertThat(campaign.getStatus(), is(nullValue()));
+        assertThat(campaign.getCreateDate(), is(nullValue()));
+        assertThat(campaign.getLastUpdated(), is(nullValue()));
+        assertThat(campaign.getAdGroups(), is(nullValue()));
+    }
+
+    @Test
+    public void verifyWhenParseCampaignFieldWithPrefix() {
+        final Optional<FieldMapper<?, AdGroup.AdGroupBuilder>> field = fieldMapperService.parseAdGroupFieldWithPrefix(CAMPAIGN_FIELD_WITH_PREFIX);
+
+        when(record.get(AdGroupTable.TABLE.campaignId)).thenReturn(CAMPAIGN_ID);
+
+        assertThat(field.isPresent(), is(true));
+
+        final AdGroup adGroup = buildAdGroup(List.of(field.get()));
+
+        assertThat(adGroup.getId(), is(nullValue()));
+        assertThat(adGroup.getCampaignId(), is(CAMPAIGN_ID));
+        assertThat(adGroup.getName(), is(nullValue()));
+        assertThat(adGroup.getStatus(), is(nullValue()));
+        assertThat(adGroup.getCreateDate(), is(nullValue()));
+        assertThat(adGroup.getLastUpdated(), is(nullValue()));
+        assertThat(adGroup.getCampaign(), is(nullValue()));
     }
 
     @Test
