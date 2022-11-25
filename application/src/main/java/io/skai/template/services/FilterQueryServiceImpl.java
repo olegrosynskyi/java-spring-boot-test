@@ -24,7 +24,6 @@ public class FilterQueryServiceImpl implements FilterQueryService {
     public Optional<Condition> filteringByCampaignFields(List<QueryFilter<List<String>>> queryFilters) {
         return Seq.seq(queryFilters)
                 .map(queryFilter -> new Tuple2<>(queryFilter, fieldMapperService.parseCampaignField(queryFilter.getField())))
-                .filter(queryFilter -> !queryFilter.v1().getField().contains("."))
                 .filter(queryFilter -> queryFilter.v2().isPresent())
                 .map(queryFilter -> filtering(queryFilter.v1(), queryFilter.v2().get().getDbField()))
                 .reduce(Condition::and);

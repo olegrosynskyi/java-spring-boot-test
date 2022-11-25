@@ -52,7 +52,7 @@ public class FieldMapperServiceImpl implements FieldMapperService {
     @Override
     public Optional<FieldMapper<?, Campaign.CampaignBuilder>> parseCampaignField(String field) {
         return Optional.ofNullable(getFieldWithoutPrefix(field))
-                .map(adGroupField -> getCampaignFields(List.of(adGroupField)))
+                .map(campaignField -> getCampaignFields(List.of(campaignField)))
                 .flatMap(parsedField -> parsedField.stream().findFirst());
     }
 

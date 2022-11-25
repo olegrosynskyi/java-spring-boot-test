@@ -18,6 +18,7 @@ import java.util.Optional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +32,6 @@ public class FilterQueryServiceTest {
     private static final String CAMPAIGN_KS_NAME_1 = "ks-name-1";
     private static final String CAMPAIGN_KS_NAME_2 = "ks-name-2";
     private static final String CAMPAIGN_KS_NAME_3 = "ks-name-3";
-    private static final String AD_GROUP_NAME_1 = "name-1";
-    private static final String AD_GROUP_NAME_2 = "name-2";
-    private static final String AD_GROUP_NAME_3 = "name-3";
-    private static final String AD_GROUP_NAME_4 = "name-4";
-    private static final String AD_GROUP_NAME_5 = "name-5";
     private static final String AD_GROUP_CAMPAIGN_ID_1 = "1";
     private static final String AD_GROUP_CAMPAIGN_ID_2 = "2";
     private static final String AD_GROUP_CAMPAIGN_ID_3 = "3";
@@ -63,21 +59,6 @@ public class FilterQueryServiceTest {
                                 .and(CampaignTable.TABLE.name.equalIgnoreCase(CAMPAIGN_NAME_3))
                 )
         );
-    }
-
-    @Test
-    public void verifyFilteringByCampaignFieldsByEqualsWithAdGroupPrefix() {
-        final List<QueryFilter<List<String>>> queryFilters = List.of(
-                new QueryFilter<>("ksName", FilterOperator.EQUALS, List.of(CAMPAIGN_KS_NAME_1)),
-                new QueryFilter<>("adGroup.name", FilterOperator.EQUALS, List.of(AD_GROUP_NAME_1, AD_GROUP_NAME_2)),
-                new QueryFilter<>("adGroup.name", FilterOperator.EQUALS, List.of(AD_GROUP_NAME_3))
-        );
-
-        when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-
-        final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
-
-        assertThat(condition.get(), is(CampaignTable.TABLE.ksName.equalIgnoreCase(CAMPAIGN_KS_NAME_1)));
     }
 
     @Test
@@ -115,21 +96,6 @@ public class FilterQueryServiceTest {
                                 .and(CampaignTable.TABLE.name.in(CAMPAIGN_NAME_3))
                 )
         );
-    }
-
-    @Test
-    public void verifyFilteringByCampaignFieldsByInWithAdGroupPrefix() {
-        final List<QueryFilter<List<String>>> queryFilters = List.of(
-                new QueryFilter<>("ksName", FilterOperator.IN, List.of(CAMPAIGN_KS_NAME_1)),
-                new QueryFilter<>("adGroup.name", FilterOperator.IN, List.of(AD_GROUP_NAME_1, AD_GROUP_NAME_2)),
-                new QueryFilter<>("adGroup.name", FilterOperator.IN, List.of(AD_GROUP_NAME_3))
-        );
-
-        when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-
-        final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
-
-        assertThat(condition.get(), is(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_1)));
     }
 
     @Test
@@ -172,23 +138,31 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void verifyFilteringByCampaignFieldsByEqualsAndInWithAdGroupPrefix() {
-        final List<QueryFilter<List<String>>> queryFilters = List.of(
-                new QueryFilter<>("ksName", FilterOperator.EQUALS, List.of(CAMPAIGN_KS_NAME_1)),
-                new QueryFilter<>("ksName", FilterOperator.IN, List.of(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3)),
-                new QueryFilter<>("adGroup.name", FilterOperator.EQUALS, List.of(AD_GROUP_NAME_1, AD_GROUP_NAME_2)),
-                new QueryFilter<>("adGroup.name", FilterOperator.EQUALS, List.of(AD_GROUP_NAME_3)),
-                new QueryFilter<>("adGroup.name", FilterOperator.IN, List.of(AD_GROUP_NAME_4, AD_GROUP_NAME_5))
-        );
+    public void verifyFilteringByCampaignFieldsWithoutAnyQueryFilters() {
+        final Optional<Condition> expectedCondition = Optional.of(CampaignTable.TABLE.ksName.equalIgnoreCase(CAMPAIGN_KS_NAME_1)
+                .and(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3)));
 
-        when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
+        final FilterQueryServiceImpl queryService = mock(FilterQueryServiceImpl.class);
 
-        final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
+        when(queryService.filteringByCampaignFields(null)).thenReturn(expectedCondition);
 
-        assertThat(condition.get(), is(
-                CampaignTable.TABLE.ksName.equalIgnoreCase(CAMPAIGN_KS_NAME_1)
-                        .and(CampaignTable.TABLE.ksName.in(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3))
-        ));
+        final Optional<Condition> condition = queryService.filteringByCampaignFields(null);
+
+        assertThat(condition, is(expectedCondition));
+    }
+
+    @Test
+    public void verifyFilteringByAdGroupFieldsWithPrefixesWithoutAnyQueryFilters() {
+        final Optional<Condition> expectedCondition = Optional.of(AdGroupTable.TABLE.campaignId.in(1L, 2L)
+                .and(AdGroupTable.TABLE.campaignId.in(3L)));
+
+        final FilterQueryServiceImpl queryService = mock(FilterQueryServiceImpl.class);
+
+        when(queryService.filteringByAdGroupFieldsWithPrefixes(null)).thenReturn(expectedCondition);
+
+        final Optional<Condition> condition = queryService.filteringByAdGroupFieldsWithPrefixes(null);
+
+        assertThat(condition, is(expectedCondition));
     }
 
 }

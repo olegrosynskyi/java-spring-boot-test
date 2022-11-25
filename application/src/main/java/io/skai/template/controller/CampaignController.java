@@ -16,6 +16,7 @@ import io.skai.template.dataaccess.entities.QueryFilterException;
 import io.skai.template.services.CampaignService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jooq.lambda.Seq;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -122,9 +123,9 @@ public class CampaignController {
     }
 
     private static void validateJsonValues(String field, String operator, List<String> values) {
-        if (field == null || field.isBlank() || field.isEmpty()) {
+        if (StringUtils.isEmpty(field) || StringUtils.isBlank(field)) {
             throw new QueryFilterException(List.of(new FieldError("field", "Field value can not be empty")));
-        } else if (operator == null || operator.isBlank() || operator.isEmpty()) {
+        } else if (StringUtils.isEmpty(operator) || StringUtils.isBlank(operator)) {
             throw new QueryFilterException(List.of(new FieldError("operator", "Operator value can not be empty")));
         } else if (values.isEmpty()) {
             throw new QueryFilterException(List.of(new FieldError("values", "Value array can not be empty")));
