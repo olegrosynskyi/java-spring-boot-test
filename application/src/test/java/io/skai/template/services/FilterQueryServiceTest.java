@@ -47,17 +47,13 @@ public class FilterQueryServiceTest {
     private FieldMapperService fieldMapperService;
 
     @Test
-    public void verifyFilteringCampaignsByEqualsWithoutAdGroupPrefix() {
+    public void verifyFilteringByCampaignFieldsByEqualsWithoutAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("name", FilterOperator.EQUALS, List.of(CAMPAIGN_NAME_1, CAMPAIGN_NAME_2)),
                 new QueryFilter<>("name", FilterOperator.EQUALS, List.of(CAMPAIGN_NAME_3))
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
@@ -70,7 +66,7 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void verifyFilteringCampaignsByEqualsWithAdGroupPrefix() {
+    public void verifyFilteringByCampaignFieldsByEqualsWithAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("ksName", FilterOperator.EQUALS, List.of(CAMPAIGN_KS_NAME_1)),
                 new QueryFilter<>("adGroup.name", FilterOperator.EQUALS, List.of(AD_GROUP_NAME_1, AD_GROUP_NAME_2)),
@@ -78,10 +74,6 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
@@ -89,17 +81,13 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void filteringCampaignsWithPrefixByEqualsWithAdGroupPrefix() {
+    public void filteringByAdGroupFieldsWithPrefixesByEqualsWithAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.EQUALS, List.of(AD_GROUP_CAMPAIGN_ID_1, AD_GROUP_CAMPAIGN_ID_2)),
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.EQUALS, List.of(AD_GROUP_CAMPAIGN_ID_3))
         );
 
         when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByAdGroupFieldsWithPrefixes(queryFilters);
 
@@ -112,17 +100,13 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void verifyFilteringCampaignsByInWithoutAdGroupPrefix() {
+    public void verifyFilteringByCampaignFieldsByInWithoutAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("name", FilterOperator.IN, List.of(CAMPAIGN_NAME_1, CAMPAIGN_NAME_2)),
                 new QueryFilter<>("name", FilterOperator.IN, List.of(CAMPAIGN_NAME_3))
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
@@ -142,10 +126,6 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
@@ -153,17 +133,13 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void filteringCampaignsWithPrefixByInWithAdGroupPrefix() {
+    public void filteringByAdGroupFieldsWithPrefixesByInWithAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.IN, List.of(AD_GROUP_CAMPAIGN_ID_1, AD_GROUP_CAMPAIGN_ID_2)),
                 new QueryFilter<>("adGroup.campaignId", FilterOperator.IN, List.of(AD_GROUP_CAMPAIGN_ID_3))
         );
 
         when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.of(new FieldMapper<>("campaignId", AdGroupTable.TABLE.campaignId, (builder, value) -> builder.campaignId(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByAdGroupFieldsWithPrefixes(queryFilters);
 
@@ -175,7 +151,7 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void verifyFilteringCampaignsByEqualsAndInWithoutAdGroupPrefix() {
+    public void verifyFilteringByCampaignFieldsByEqualsAndInWithoutAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("name", FilterOperator.EQUALS, List.of(CAMPAIGN_NAME_1, CAMPAIGN_NAME_2)),
                 new QueryFilter<>("name", FilterOperator.EQUALS, List.of(CAMPAIGN_NAME_3)),
@@ -183,10 +159,6 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("name", CampaignTable.TABLE.name, (builder, value) -> builder.name(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
@@ -200,7 +172,7 @@ public class FilterQueryServiceTest {
     }
 
     @Test
-    public void verifyFilteringCampaignsByEqualsAndInWithAdGroupPrefix() {
+    public void verifyFilteringByCampaignFieldsByEqualsAndInWithAdGroupPrefix() {
         final List<QueryFilter<List<String>>> queryFilters = List.of(
                 new QueryFilter<>("ksName", FilterOperator.EQUALS, List.of(CAMPAIGN_KS_NAME_1)),
                 new QueryFilter<>("ksName", FilterOperator.IN, List.of(CAMPAIGN_KS_NAME_2, CAMPAIGN_KS_NAME_3)),
@@ -210,10 +182,6 @@ public class FilterQueryServiceTest {
         );
 
         when(fieldMapperService.parseCampaignField(anyString())).thenReturn(Optional.of(new FieldMapper<>("ksName", CampaignTable.TABLE.ksName, (builder, value) -> builder.ksName(value))));
-<<<<<<< HEAD
-=======
-        when(fieldMapperService.parseAdGroupFieldWithPrefix(anyString())).thenReturn(Optional.empty());
->>>>>>> a9161d68d20d4a498fe6dd3456a1d39598f483c2
 
         final Optional<Condition> condition = filterQueryService.filteringByCampaignFields(queryFilters);
 
